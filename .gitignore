@@ -1,0 +1,9 @@
+# Ignore all files in the data directory
+data/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env
