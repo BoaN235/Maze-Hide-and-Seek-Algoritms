@@ -34,10 +34,15 @@ $RECYCLE.BIN/
 *.data
 *.log
 
+# Ignore all files in the data folder
+data/*
+
+# But do not ignore the data folder itself
+!data/
+
 # Python cache files
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
 # End of https://www.toptal.com/developers/gitignore/api/windows
