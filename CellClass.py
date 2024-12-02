@@ -4,14 +4,14 @@ import random
 import ast
 
 try:
-    with open("pred.txt", "r") as file:
+    with open("data/pred.txt", "r") as file:
         predactionsstring = file.readlines()
 except FileNotFoundError:
     predactionsstring = ["up\n","down\n"]
 print(f"Starting Maze Generator with seed value: {predactionsstring}")
 predactions = [ast.literal_eval(predactionsstring.strip()) for line in predactionsstring[1:]]
 try:
-    with open("prey.txt", "r") as file:
+    with open("data/prey.txt", "r") as file:
         preyactionsstring = file.readlines()
 except FileNotFoundError:
     preyactionsstring = ["up\n","down\n"]
@@ -19,14 +19,14 @@ print(f"Starting Maze Generator with seed value: {preyactionsstring}")
 preyactions = [ast.literal_eval(preyactionsstring.strip()) for line in preyactionsstring[1:]]
 
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
     print(f"Error loading maze state: {e}")
     MaxActions = 50
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         lines = file.readlines()
         seedvalue = int(lines[1].strip())
 except FileNotFoundError:

@@ -6,7 +6,7 @@ from random import seed
 import numpy as np
 
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
@@ -14,7 +14,7 @@ except (FileNotFoundError, ValueError, SyntaxError) as e:
     MaxActions = 50
 # Try to load TILE from the file, or use a default value
 try:
-    with open("lastmaze.txt", "r") as file:
+    with open("data/lastmaze.txt", "r") as file:
         file_contents = file.readlines()
         TILE = int(file_contents[0].strip())
         if len(file_contents) > 1:
@@ -55,7 +55,7 @@ for i in range(1, MaxActions + 1):
         preylist.append("top")
     if random_actions == 3:
         preylist.append("down")
-with open("prey.txt", "w") as file:
+with open("data/prey.txt", "w") as file:
     for x in preylist:
         file.write(str(x) + '\n')
 
@@ -73,7 +73,7 @@ for i in range(1, MaxActions):
     if random_actions == 3:
         predlist.append("down")
 
-with open("pred.txt", "a") as file:
+with open("data/pred.txt", "a") as file:
     for x in predlist:
         file.write(str(x) + '\n')
 

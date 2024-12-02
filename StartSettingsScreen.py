@@ -68,7 +68,7 @@ while True:
             if event.button == 1:
                 if start_button.collidepoint(event.pos):
                     # Write data to a temporary file
-                    with open("config.txt", "w") as file:
+                    with open("data/config.txt", "w") as file:
                         file.write(inputs[0]['text'] + '\n')
                         file.write(inputs[1]['text'] + '\n')
                         file.write(inputs[2]['text'] + '\n')

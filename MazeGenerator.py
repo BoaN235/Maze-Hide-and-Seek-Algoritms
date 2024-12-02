@@ -5,7 +5,7 @@ from CellClass import Cell
 done = False
 
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         lines = file.readlines()
         TILE = int(lines[0].strip())
 except FileNotFoundError:
@@ -54,7 +54,7 @@ while True:
     # Check if all cells are visited and if so, write to the file
     if all(cell.visited for cell in grid_cells):
         if done == False:
-            with open("lastmaze.txt", "w") as file:
+            with open("data/lastmaze.txt", "w") as file:
                 file.write(str(TILE) + '\n')
                 for x in grid_cells:
                     file.write(str(x.walls) + '\n')
