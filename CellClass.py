@@ -3,22 +3,6 @@ from random import seed, choice
 import random
 import ast
 
-try:
-    with open("data/pred.txt", "r") as file:
-        file_contents = file.readlines()
-except FileNotFoundError:
-    file_contents = ["up\n", "down\n"]
-print(f"Starting Maze Generator with seed value: {file_contents}")
-predactions = [line.strip() for line in file_contents[1:]]
-
-# Read prey.txt
-try:
-    with open("data/prey.txt", "r") as file:
-        file_contents = file.readlines()
-except FileNotFoundError:
-    file_contents = ["up\n", "down\n"]
-print(f"Starting Maze Generator with seed value: {file_contents}")
-preyactions = [line.strip() for line in file_contents[1:]]
 
 try:
     with open("config.txt", "r") as file:
@@ -48,6 +32,10 @@ class Cell:
         self.rows = rows
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
         self.visited = False
+        self.top = None
+        self.right = None
+        self.bottom = None
+        self.left = None
     def draw_current_cell(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
         pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
@@ -74,19 +62,19 @@ class Cell:
 
     def check_neighbors(self, grid_cells):
         neighbors = []
-        top = self.check_cell(self.x, self.y - 1, grid_cells)
-        right = self.check_cell(self.x + 1, self.y, grid_cells)
-        bottom = self.check_cell(self.x, self.y + 1, grid_cells)
-        left = self.check_cell(self.x - 1, self.y, grid_cells)
+        self.top = self.check_cell(self.x, self.y - 1, grid_cells)
+        self.right = self.check_cell(self.x + 1, self.y, grid_cells)
+        self.bottom = self.check_cell(self.x, self.y + 1, grid_cells)
+        self.left = self.check_cell(self.x - 1, self.y, grid_cells)
 
-        if top and not top.visited:
-            neighbors.append(top)
-        if right and not right.visited:
-            neighbors.append(right)
-        if bottom and not bottom.visited:
-            neighbors.append(bottom)
-        if left and not left.visited:
-            neighbors.append(left)
+        if self.top and not self.top.visited:
+            neighbors.append(self.top)
+        if self.right and not self.right.visited:
+            neighbors.append(self.right)
+        if self.bottom and not self.bottom.visited:
+            neighbors.append(self.bottom)
+        if self.left and not self.left.visited:
+            neighbors.append(self.left)
 
         return choice(neighbors) if neighbors else None
 
@@ -111,30 +99,6 @@ class Cell:
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
 
-    def predstep(self, screen, moves):
-        action = predactions[moves % len(predactions)]
-        if action == 'top' and self.y > 0:
-            self.y -= 1
-        elif action == 'down' and self.y < self.rows - 1:
-            self.y += 1
-        elif action == 'left' and self.x > 0:
-            self.x -= 1
-        elif action == 'right' and self.x < self.cols - 1:
-            self.x += 1
-        x, y = self.x * self.tile_size, self.y * self.tile_size
-        pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
-        return self
 
-    def preystep(self, screen, moves):
-        action = preyactions[moves % len(preyactions)]
-        if action == 'top' and self.y > 0:
-            self.y -= 1
-        elif action == 'down' and self.y < self.rows - 1:
-            self.y += 1
-        elif action == 'left' and self.x > 0:
-            self.x -= 1
-        elif action == 'right' and self.x < self.cols - 1:
-            self.x += 1
-        x, y = self.x * self.tile_size, self.y * self.tile_size
-        pygame.draw.rect(screen, pygame.Color(0, 255, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
-        return self
+
+

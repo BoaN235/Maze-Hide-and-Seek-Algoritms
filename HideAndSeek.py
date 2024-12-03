@@ -1,9 +1,9 @@
 import pygame
 from CellClass import Cell
+from ActorClass import Actor, PreyActor, PredActor
 import ast
 import random
-from random import seed
-import numpy as np
+
 
 try:
     with open("config.txt", "r") as file:
@@ -50,44 +50,6 @@ grid_cells = [Cell(col, row, TILE, cols, rows) for row in range(rows) for col in
 current_cell = grid_cells[0]
 stack = []
 
-# Initialize the actions
-seed()
-if setseed == True:
-    seed(seedvalue)
-preylist = []
-for i in range(1, MaxActions + 1):
-    random_actions = random.randint(0, 3)
-    if random_actions == 0:
-        preylist.append("left")
-    if random_actions == 1:
-        preylist.append("right")
-    if random_actions == 2:
-        preylist.append("top")
-    if random_actions == 3:
-        preylist.append("down")
-with open("data/prey.txt", "w") as file:
-    for x in preylist:
-        file.write(str(x) + '\n')
-
-
-predlist = []    
-seed()
-if setseed == True:
-    seed(seedvalue)
-for i in range(1, MaxActions):
-    random_actions = random.randint(0, 3)        
-    if random_actions == 0:
-        predlist.append("left")
-    if random_actions == 1:
-        predlist.append("right")
-    if random_actions == 2:
-        predlist.append("top")
-    if random_actions == 3:
-        predlist.append("down")
-
-with open("data/pred.txt", "a") as file:
-    for x in predlist:
-        file.write(str(x) + '\n')
 
 # Load saved walls if available
 if walls_data:
@@ -95,24 +57,23 @@ if walls_data:
         cell.savegen(walls)
 
 movesleft = 0
-inital_nextprey = grid_cells[1] #prey spawn
-inital_nextpred = grid_cells[5] #pred spawn
 gen_number = 0
+Actors = [PredActor(grid_cells, 2), PreyActor(grid_cells, 4)]
 
 # Game loop
 while True:
     sc.fill((50, 50, 50))
 
-    if movesleft == 0:
-        movesleft = MaxActions
-        nextprey = inital_nextprey
-        nextpred = inital_nextpred
+    if movesleft == MaxActions:
+        movesleft = 0
+        for a in Actors:
+            a.spawn()
         gen_number += 1
         print(f"Generation {gen_number}")
-    elif movesleft > 0:
-        nextprey = nextprey.preystep(sc, movesleft)
-        nextpred = nextpred.predstep(sc, movesleft)
-        movesleft -= 1
+    elif movesleft < MaxActions:
+        for a in Actors:
+            a.step(movesleft, )
+        movesleft += 1
 
     # Draw all cells
     for cell in grid_cells:
