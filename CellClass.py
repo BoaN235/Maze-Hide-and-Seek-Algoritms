@@ -25,11 +25,12 @@ seed(seedvalue)
 
 
 class Cell:
-    def __init__(self, x, y, tile_size, cols, rows):
+    def __init__(self, x, y, SimState):
+        self.sim_state = SimState
         self.x, self.y = x, y
-        self.tile_size = tile_size
-        self.cols = cols
-        self.rows = rows
+        self.tile_size = SimState.TILE
+        self.cols = SimState.cols
+        self.rows = SimState.rows
         self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
         self.visited = False
         self.top = None
@@ -44,6 +45,12 @@ class Cell:
         x, y = self.x * self.tile_size, self.y * self.tile_size
         if self.visited:
             pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
+        for a in self.sim_state.Actors:
+            if a.spawn_cell == self:
+                pygame.draw.rect(screen, a.spawn_color, (x, y, self.tile_size, self.tile_size))            
+            if a.current_cell == self:
+                pygame.draw.rect(screen, a.color, (x, y, self.tile_size, self.tile_size))
+
 
         if self.walls['top']:
             pygame.draw.line(screen, pygame.Color(150, 100, 0), (x, y), (x + self.tile_size, y), 2)
@@ -78,6 +85,7 @@ class Cell:
 
         return choice(neighbors) if neighbors else None
 
+
     @staticmethod
     def remove_walls(current, next):
         dx = current.x - next.x
@@ -95,7 +103,7 @@ class Cell:
             current.walls['bottom'] = False
             next.walls['top'] = False
 
-    def savegen(self, walls):
+    def save_gen(self, walls):
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
 
