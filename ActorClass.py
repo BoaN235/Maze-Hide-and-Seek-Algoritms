@@ -7,7 +7,8 @@ class Actor:
         self.sim_state = sim_state  # Ensure sim_state is initialized first
         self.color = (255, 255, 255)
         self.current_cell = None
-        self.spawn_cell = self.sim_state.grid_cells[spawn_index]
+        self.spawn_index = spawn_index
+
         self.spawn()
         self.moves = 0
         self.actions = []
@@ -61,9 +62,22 @@ class Actor:
             self.spawn()
 
     def spawn(self):
-        self.current_cell = self.spawn_cell
+        self.current_cell = self.spawn_cell = self.sim_state.grid_cells[self.spawn_index]
         self.moves = 0
     
+    def to_dict(self):
+        return {
+            'color': self.color,
+            'spawn_index': self.sim_state.grid_cells.index(self.spawn_cell),
+            'moves': self.moves
+        }
+    
+    def from_dict(data):
+        actor = Actor(None, 0)
+        actor.color = data['color']
+        actor.spawn_index = data['spawn_index']
+        actor.moves = data['moves']
+        return actor
 
 class PreyActor(Actor):
     def __init__(self, sim_state, spawn_index, ide):
