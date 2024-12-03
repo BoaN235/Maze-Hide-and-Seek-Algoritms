@@ -95,8 +95,8 @@ if walls_data:
         cell.savegen(walls)
 
 movesleft = 0
-nextprey = grid_cells[1] #prey spawn
-nextpred = grid_cells[5] #pred spawn
+inital_nextprey = grid_cells[1] #prey spawn
+inital_nextpred = grid_cells[5] #pred spawn
 gen_number = 0
 
 # Game loop
@@ -105,18 +105,20 @@ while True:
 
     if movesleft == 0:
         movesleft = MaxActions
-        nextprey = grid_cells[1]
-        nextpred = grid_cells[5]
+        nextprey = inital_nextprey
+        nextpred = inital_nextpred
         gen_number += 1
         print(f"Generation {gen_number}")
-    if movesleft > 0:
+    elif movesleft > 0:
         nextprey = nextprey.preystep(sc, movesleft)
         nextpred = nextpred.predstep(sc, movesleft)
         movesleft -= 1
 
     # Draw all cells
-    [cell.draw(sc) for cell in grid_cells]
-
+    for cell in grid_cells:
+        if cell != nextpred and cell != nextprey:
+            cell.draw(sc)
+    
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -124,4 +126,4 @@ while True:
             exit()
 
     pygame.display.flip()
-    clock.tick(100)
+    clock.tick(5)

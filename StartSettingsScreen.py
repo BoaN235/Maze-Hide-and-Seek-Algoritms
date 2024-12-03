@@ -76,6 +76,7 @@ while True:
                         file.write(inputs[0]['text'] + '\n')
                         file.write(inputs[1]['text'] + '\n')
                         file.write(inputs[2]['text'] + '\n')
+                        file.write(inputs[3]['text'] + '\n')
                     # Launch the MazeGenerator
                     subprocess.Popen(["python", "MazeGenerator.py"])
                     pygame.quit()
