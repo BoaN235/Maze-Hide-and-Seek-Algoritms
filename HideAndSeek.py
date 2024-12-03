@@ -9,6 +9,7 @@ try:
     with open("config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
+        seedvalue = int(file_contents[3].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
     print(f"Error loading maze state: {e}")
     MaxActions = 50
@@ -17,7 +18,7 @@ try:
     with open("lastmaze.txt", "r") as file:
         file_contents = file.readlines()
         TILE = int(file_contents[0].strip())
-        seedvalue = int(file_contents[4].strip())
+
         
         if len(file_contents) > 1:
             # Process the remaining lines
