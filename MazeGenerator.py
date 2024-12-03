@@ -3,7 +3,7 @@ from CellClass import Cell
 
 # Constants
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         file_contents = file.readlines()
         TILE = int(file_contents[0].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
@@ -40,9 +40,9 @@ while True:
     # Mark the current cell as visited and draw it
     current_cell.visited = True
     current_cell.draw_current_cell(sc)
-
+    gen = True
     # Check for the next cell to move to
-    next_cell = current_cell.check_neighbors(grid_cells)
+    next_cell = current_cell.check_neighbors(grid_cells, gen)
     if next_cell:
         next_cell.visited = True
         stack.append(current_cell)
@@ -54,8 +54,8 @@ while True:
     # Check if all cells are visited and if so, write to the file
     if all(cell.visited for cell in grid_cells):
         if not done:
-            print("All cells visited, writing to file...")
-            with open("lastmaze.txt", "w") as file:
+            
+            with open("data/lastmaze.txt", "w") as file:
                 file.write(str(TILE) + '\n')
                 for x in grid_cells:
                     file.write(str(x.walls) + '\n')

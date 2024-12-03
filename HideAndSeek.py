@@ -6,19 +6,18 @@ from random import seed
 import numpy as np
 
 try:
-    with open("config.txt", "r") as file:
+    with open("data/config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
+        seedvalue = int(file_contents[3].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
     print(f"Error loading maze state: {e}")
     MaxActions = 50
 # Try to load TILE from the file, or use a default value
 try:
-    with open("lastmaze.txt", "r") as file:
+    with open("data/lastmaze.txt", "r") as file:
         file_contents = file.readlines()
         TILE = int(file_contents[0].strip())
-        seedvalue = int(file_contents[4].strip())
-        
         if len(file_contents) > 1:
             # Process the remaining lines
             walls_data = [ast.literal_eval(line.strip()) for line in file_contents[1:]]
@@ -84,7 +83,7 @@ for i in range(1, MaxActions):
     if random_actions == 3:
         predlist.append("down")
 
-with open("data/pred.txt", "a") as file:
+with open("data/pred.txt", "w") as file:
     for x in predlist:
         file.write(str(x) + '\n')
 
@@ -94,9 +93,12 @@ if walls_data:
         cell.savegen(walls)
 
 movesleft = 0
-nextprey = grid_cells[1] #prey spawn
-nextpred = grid_cells[5] #pred spawn
+initial_prey_pos = grid_cells[1]  # initial prey spawn
+initial_pred_pos = grid_cells[5]  # initial pred spawn
+nextprey = initial_prey_pos
+nextpred = initial_pred_pos
 gen_number = 0
+gen = False
 
 # Game loop
 while True:
@@ -104,13 +106,22 @@ while True:
 
     if movesleft == 0:
         movesleft = MaxActions
-        nextprey = grid_cells[1]
-        nextpred = grid_cells[5]
+        nextprey = initial_prey_pos
+        nextpred = initial_pred_pos
         gen_number += 1
         print(f"Generation {gen_number}")
-    if movesleft > 0:
-        nextprey = nextprey.preystep(sc, movesleft)
-        nextpred = nextpred.predstep(sc, movesleft)
+    else:
+        prey_neighbors = nextprey.check_neighbors2(grid_cells)
+        pred_neighbors = nextpred.check_neighbors2(grid_cells)
+
+        # Move prey
+        if prey_neighbors:
+            nextprey = nextprey.preystep(sc, prey_neighbors)
+        
+        # Move predator
+        if pred_neighbors:
+            nextpred = nextpred.predstep(sc, pred_neighbors)
+        
         movesleft -= 1
 
     # Draw all cells
@@ -123,4 +134,4 @@ while True:
             exit()
 
     pygame.display.flip()
-    clock.tick(100)
+    clock.tick(5)
