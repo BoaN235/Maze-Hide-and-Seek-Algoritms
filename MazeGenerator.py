@@ -1,18 +1,14 @@
 import pygame
-from random import choice
 from CellClass import Cell
 
-done = False
-
-try:
-    with open("data/config.txt", "r") as file:
-        lines = file.readlines()
-        TILE = int(lines[0].strip())
-except FileNotFoundError:
-    TILE = 50
-print(f"Starting Maze Generator with tile size: {TILE}")
-
 # Constants
+try:
+    with open("config.txt", "r") as file:
+        file_contents = file.readlines()
+        TILE = int(file_contents[0].strip())
+except (FileNotFoundError, ValueError, SyntaxError) as e:
+    print(f"Error loading maze state: {TILE}")
+    TILE = 50
 RES = WIDTH, HEIGHT = 1202, 902
 cols, rows = WIDTH // TILE, HEIGHT // TILE
 
@@ -26,12 +22,16 @@ grid_cells = [Cell(col, row, TILE, cols, rows) for row in range(rows) for col in
 current_cell = grid_cells[0]
 stack = []
 
+# Initialize the done variable
+done = False
+
 # Main loop
 while True:
     sc.fill(pygame.Color(50, 50, 50))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            pygame.quit()
             exit()
 
     # Draw all cells
@@ -53,13 +53,14 @@ while True:
 
     # Check if all cells are visited and if so, write to the file
     if all(cell.visited for cell in grid_cells):
-        if done == False:
-            with open("data/lastmaze.txt", "w") as file:
+        if not done:
+            print("All cells visited, writing to file...")
+            with open("lastmaze.txt", "w") as file:
                 file.write(str(TILE) + '\n')
                 for x in grid_cells:
                     file.write(str(x.walls) + '\n')
+            print("File written successfully.")
             done = True
-
 
     # Update display
     pygame.display.flip()

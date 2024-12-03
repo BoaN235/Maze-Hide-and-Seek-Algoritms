@@ -21,13 +21,17 @@ inputs = [
      'color_passive': pygame.Color("gray15"), 'active': False},
     {'text': '100', 'rect': pygame.Rect(0, 200, 240, 32), 'color_active': pygame.Color("lightskyblue"),
      'color_passive': pygame.Color("gray15"), 'active': False}, {'text': '100', 'rect': pygame.Rect(0, 300, 240, 32), 'color_active': pygame.Color("lightskyblue"),
-     'color_passive': pygame.Color("gray15"), 'active': False}
+     'color_passive': pygame.Color("gray15"), 'active': False}, {'text': '100', 'rect': pygame.Rect(0, 400, 240, 32), 'color_active': pygame.Color("lightskyblue"),
+     'color_passive': pygame.Color("gray15"), 'active': False},
+    
 ]
 buttons = [
     {'rect': pygame.Rect(WIDTH // 2 - BUTTON_WIDTH // 2, HEIGHT // 2 - 50, BUTTON_WIDTH, 50), 'color_active': pygame.Color("lightskyblue"),
      'text': 'generate'},
     {'rect': pygame.Rect(WIDTH // 2 - BUTTON_WIDTH // 2, HEIGHT // 2 + 50, BUTTON_WIDTH, 50), 'color_active': pygame.Color("lightskyblue"),
-     'text': 'load last generated'}
+     'text': 'load last generated'},
+        {'rect': pygame.Rect(WIDTH // 2 - BUTTON_WIDTH // 2, HEIGHT // 2 - 150, BUTTON_WIDTH, 50), 'color_active': pygame.Color("lightskyblue"),
+     'text': 'set seed for generations'},
 ]
 
 # To add text at a specific location (e.g., above the start button)
@@ -68,7 +72,7 @@ while True:
             if event.button == 1:
                 if start_button.collidepoint(event.pos):
                     # Write data to a temporary file
-                    with open("data/config.txt", "w") as file:
+                    with open("config.txt", "w") as file:
                         file.write(inputs[0]['text'] + '\n')
                         file.write(inputs[1]['text'] + '\n')
                         file.write(inputs[2]['text'] + '\n')
@@ -103,7 +107,8 @@ while True:
     draw_text(sc, "Tiles", (70, 65), font, (255, 255, 255))
     draw_text(sc, "Seed", (70, 165), font, (255, 255, 255))
     draw_text(sc, "Max Actions", (70, 265), font, (255, 255, 255))
-    
+    draw_text(sc, "seed generation", (70, 365), font, (255, 255, 255))    
+
     for button_data in buttons:
         draw_button(sc, button_data)
 

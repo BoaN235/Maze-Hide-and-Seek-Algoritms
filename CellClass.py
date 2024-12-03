@@ -5,28 +5,30 @@ import ast
 
 try:
     with open("data/pred.txt", "r") as file:
-        predactionsstring = file.readlines()
+        file_contents = file.readlines()
 except FileNotFoundError:
-    predactionsstring = ["up\n","down\n"]
-print(f"Starting Maze Generator with seed value: {predactionsstring}")
-predactions = [ast.literal_eval(predactionsstring.strip()) for line in predactionsstring[1:]]
+    file_contents = ["up\n", "down\n"]
+print(f"Starting Maze Generator with seed value: {file_contents}")
+predactions = [line.strip() for line in file_contents[1:]]
+
+# Read prey.txt
 try:
     with open("data/prey.txt", "r") as file:
-        preyactionsstring = file.readlines()
+        file_contents = file.readlines()
 except FileNotFoundError:
-    preyactionsstring = ["up\n","down\n"]
-print(f"Starting Maze Generator with seed value: {preyactionsstring}")
-preyactions = [ast.literal_eval(preyactionsstring.strip()) for line in preyactionsstring[1:]]
+    file_contents = ["up\n", "down\n"]
+print(f"Starting Maze Generator with seed value: {file_contents}")
+preyactions = [line.strip() for line in file_contents[1:]]
 
 try:
-    with open("data/config.txt", "r") as file:
+    with open("config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
     print(f"Error loading maze state: {e}")
     MaxActions = 50
 try:
-    with open("data/config.txt", "r") as file:
+    with open("config.txt", "r") as file:
         lines = file.readlines()
         seedvalue = int(lines[1].strip())
 except FileNotFoundError:
@@ -109,15 +111,30 @@ class Cell:
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
 
-    def predstep(self, next, screen, moves):
-        predactions[moves] 
+    def predstep(self, screen, moves):
+        action = predactions[moves % len(predactions)]
+        if action == 'top' and self.y > 0:
+            self.y -= 1
+        elif action == 'down' and self.y < self.rows - 1:
+            self.y += 1
+        elif action == 'left' and self.x > 0:
+            self.x -= 1
+        elif action == 'right' and self.x < self.cols - 1:
+            self.x += 1
         x, y = self.x * self.tile_size, self.y * self.tile_size
-        pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))        
-        
-        return next
-    def preystep(self, next, screen, moves):
-        preyactions[moves]        
-        x, y = self.x * self.tile_size, self.y * self.tile_size
-        pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))        
+        pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
+        return self
 
-        return next
+    def preystep(self, screen, moves):
+        action = preyactions[moves % len(preyactions)]
+        if action == 'top' and self.y > 0:
+            self.y -= 1
+        elif action == 'down' and self.y < self.rows - 1:
+            self.y += 1
+        elif action == 'left' and self.x > 0:
+            self.x -= 1
+        elif action == 'right' and self.x < self.cols - 1:
+            self.x += 1
+        x, y = self.x * self.tile_size, self.y * self.tile_size
+        pygame.draw.rect(screen, pygame.Color(0, 255, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
+        return self

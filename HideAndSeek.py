@@ -6,7 +6,7 @@ from random import seed
 import numpy as np
 
 try:
-    with open("data/config.txt", "r") as file:
+    with open("config.txt", "r") as file:
         file_contents = file.readlines()
         MaxActions = int(file_contents[2].strip())
 except (FileNotFoundError, ValueError, SyntaxError) as e:
@@ -14,17 +14,24 @@ except (FileNotFoundError, ValueError, SyntaxError) as e:
     MaxActions = 50
 # Try to load TILE from the file, or use a default value
 try:
-    with open("data/lastmaze.txt", "r") as file:
+    with open("lastmaze.txt", "r") as file:
         file_contents = file.readlines()
         TILE = int(file_contents[0].strip())
+        seedvalue = int(file_contents[4].strip())
+        
         if len(file_contents) > 1:
             # Process the remaining lines
             walls_data = [ast.literal_eval(line.strip()) for line in file_contents[1:]]
 except (FileNotFoundError, ValueError, SyntaxError) as e:
     print(f"Error loading maze state: {e}")
     TILE = 100
+    seedvalue = None
     walls_data = []
 print(TILE)
+if seedvalue == None:
+    setseed = False
+else:
+    setseed = True
 
 # Setup display parameters
 RES = WIDTH, HEIGHT = 1202, 902
@@ -42,8 +49,10 @@ grid_cells = [Cell(col, row, TILE, cols, rows) for row in range(rows) for col in
 current_cell = grid_cells[0]
 stack = []
 
-
+# Initialize the actions
 seed()
+if setseed == True:
+    seed(seedvalue)
 preylist = []
 for i in range(1, MaxActions + 1):
     random_actions = random.randint(0, 3)
@@ -62,6 +71,8 @@ with open("data/prey.txt", "w") as file:
 
 predlist = []    
 seed()
+if setseed == True:
+    seed(seedvalue)
 for i in range(1, MaxActions):
     random_actions = random.randint(0, 3)        
     if random_actions == 0:
@@ -82,12 +93,29 @@ if walls_data:
     for cell, walls in zip(grid_cells, walls_data):
         cell.savegen(walls)
 
+movesleft = 0
+nextprey = grid_cells[1] #prey spawn
+nextpred = grid_cells[5] #pred spawn
+gen_number = 0
+
 # Game loop
 while True:
     sc.fill((50, 50, 50))
 
+    if movesleft == 0:
+        movesleft = MaxActions
+        nextprey = grid_cells[1]
+        nextpred = grid_cells[5]
+        gen_number += 1
+        print(f"Generation {gen_number}")
+    if movesleft > 0:
+        nextprey = nextprey.preystep(sc, movesleft)
+        nextpred = nextpred.predstep(sc, movesleft)
+        movesleft -= 1
+
     # Draw all cells
     [cell.draw(sc) for cell in grid_cells]
+
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -95,4 +123,4 @@ while True:
             exit()
 
     pygame.display.flip()
-    clock.tick(30)
+    clock.tick(100)
