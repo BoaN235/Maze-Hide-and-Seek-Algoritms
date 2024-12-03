@@ -11,7 +11,7 @@ class SimState:
         self.TILE = 50
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
         self.generation = 0
-
+        self.ide = [1,2,3,4,5,6,7,8,9,10]
 
 
 
@@ -42,7 +42,7 @@ class SimState:
             for cell, walls in zip(self.grid_cells, walls_data):
                 cell.save_gen(walls)
     def create_actors(self):
-        self.Actors = [PredActor(self, 2), PreyActor(self, 4), PreyActor(self, 3), PreyActor(self, 10)]
+        self.Actors = [PredActor(self, 10, self.ide[0]), PreyActor(self, 20, self.ide[1]), PreyActor(self, 30, self.ide[2]), PreyActor(self, 40, self.ide[3])]
 
 
     def load():

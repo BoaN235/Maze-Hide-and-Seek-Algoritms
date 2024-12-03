@@ -1,8 +1,9 @@
 import pygame
 import random
+from random import seed
 
 class Actor:
-    def __init__(self, sim_state, spawn_index):
+    def __init__(self, sim_state, spawn_index, ide):
         self.sim_state = sim_state  # Ensure sim_state is initialized first
         self.color = (255, 255, 255)
         self.current_cell = None
@@ -10,6 +11,8 @@ class Actor:
         self.spawn()
         self.moves = 0
         self.actions = []
+        self.ide = ide
+        seed()
         for i in range(1, self.sim_state.MaxActions):
             random_actions = random.randint(0, 3)        
             if random_actions == 0:
@@ -20,6 +23,7 @@ class Actor:
                 self.actions.append("top")
             if random_actions == 3:
                 self.actions.append("down")
+        print(self.actions)
     def preform_action(self):
         if self.moves < self.sim_state.MaxActions:
             self.step()
@@ -30,20 +34,31 @@ class Actor:
     def step(self):
 
         if self.current_cell:
-            self.current_cell = self.current_cell.check_neighbors(self.sim_state.grid_cells)
+            self.current_cell.check_neighbors(self.sim_state.grid_cells)
+            movable_cells = self.current_cell.check_neighboring_options(self.sim_state.grid_cells)
+            print(str(movable_cells) + str(self.ide))
+            if self.actions[self.moves-1] == 'top':
+                for x in movable_cells:
+                    if x == self.current_cell.top:
+                        self.current_cell = self.current_cell.top
+                        break
+            if self.actions[self.moves-1] == 'left':
+                for x in movable_cells:
+                    if x == self.current_cell.left:
+                        self.current_cell = self.current_cell.left
+                        break
+            if self.actions[self.moves-1] == 'right':
+                for x in movable_cells:
+                    if x == self.current_cell.right:
+                        self.current_cell = self.current_cell.right
+                        break
+            if self.actions[self.moves-1] == 'bottom':
+                for x in movable_cells:
+                    if x == self.current_cell.bottom:
+                        self.current_cell = self.current_cell.bottom
+                        break
         else:
             self.spawn()
-    # def step(self, moves):
-    #     action = self.actions[moves % len(self.actions)]
-    #     if action == 'top' and self.y > 0:
-    #         self.y -= 1
-    #     elif action == 'down' and self.y < self.rows - 1:
-    #         self.y += 1
-    #     elif action == 'left' and self.x > 0:
-    #         self.x -= 1
-    #     elif action == 'right' and self.x < self.cols - 1:
-    #         self.x += 1
-    #     return self
 
     def spawn(self):
         self.current_cell = self.spawn_cell
@@ -51,14 +66,14 @@ class Actor:
     
 
 class PreyActor(Actor):
-    def __init__(self, sim_state, spawn_index):
-        super().__init__(sim_state, spawn_index)
+    def __init__(self, sim_state, spawn_index, ide):
+        super().__init__(sim_state, spawn_index, ide)
         self.color = (0, 255, 0)
         self.spawn_color = (0, 155, 0)
-
-
+        self.id = ide
 class PredActor(Actor):
-    def __init__(self, sim_state, spawn_index):
-        super().__init__(sim_state, spawn_index)
+    def __init__(self, sim_state, spawn_index, ide):
+        super().__init__(sim_state, spawn_index, ide)
         self.color = (255, 0, 0)
         self.spawn_color = (155, 0, 0)
+        self.id = ide
