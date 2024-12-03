@@ -1,4 +1,7 @@
 *.txt
+config.txt
+lastmaze.txt
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
