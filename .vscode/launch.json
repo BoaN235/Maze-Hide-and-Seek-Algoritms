@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Python Debugger: Generate",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "MazeGenerator.py"
+        },
+        {
+            "name": "Python Debugger: Solve",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "HideAndSeek.py"
+        }
+    ]
+}

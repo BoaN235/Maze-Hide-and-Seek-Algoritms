@@ -43,13 +43,15 @@ class Cell:
 
     def draw(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
-        if self.visited:
-            pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
-        for a in self.sim_state.Actors:
-            if a.spawn_cell == self:
-                pygame.draw.rect(screen, a.spawn_color, (x, y, self.tile_size, self.tile_size))            
-            if a.current_cell == self:
-                pygame.draw.rect(screen, a.color, (x, y, self.tile_size, self.tile_size))
+
+        pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
+        if (hasattr(self.sim_state, 'Actors') and  self.sim_state.Actors != None):
+            for a in self.sim_state.Actors:
+                if a.spawn_cell == self:
+                    pygame.draw.rect(screen, a.spawn_color, (x, y, self.tile_size, self.tile_size))            
+                if a.current_cell == self:
+                    pygame.draw.rect(screen, a.color, (x, y, self.tile_size, self.tile_size))
+        
 
 
         if self.walls['top']:
@@ -107,6 +109,18 @@ class Cell:
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
 
+    def to_dict(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'walls': self.walls,
+            'visited': self.visited
+        }
 
+    def from_dict(data, sim_state):
+        cell = Cell(data['x'], data['y'], sim_state)
+        cell.walls = data['walls']
+        cell.visited = data['visited']
+        return cell
 
 
