@@ -42,7 +42,7 @@ class SimState:
             for cell, walls in zip(self.grid_cells, walls_data):
                 cell.save_gen(walls)
     def create_actors(self):
-        self.Actors = [PredActor(self, 2), PreyActor(self, 4), PreyActor(self, 3), PreyActor(self, 10)]
+        self.Actors = [PredActor(self, 2, 1), PreyActor(self, 4, 2), PreyActor(self, 3, 3), PreyActor(self, 10, 4)]
 
 
     def load(self):

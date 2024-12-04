@@ -11,6 +11,12 @@
             "type": "debugpy",
             "request": "launch",
             "program": "HideAndSeek.py"
+        },
+        {
+        "name": "Python Debugger: Start",
+        "type": "debugpy",
+        "request": "launch",
+        "program": "StartSettingsScreen.py"
         }
     ]
 }
