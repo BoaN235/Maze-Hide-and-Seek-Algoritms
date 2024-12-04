@@ -1,17 +1,22 @@
 import pygame
 from CellClass import Cell
 from ActorClass import Actor, PreyActor, PredActor
+from inputs import Button, InputBox, text, Slider
 import ast
 import json
-import random
+from random import seed
 
 class SimState:
     def __init__(self):
-        self.MaxActions = 10
+        self.MaxActions = 100
         self.WIDTH, self.HEIGHT = 1202, 902
         self.TILE = 50
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
-        self.generation = 0
+        self.generation = 1
+        self.pred_score = 0
+        self.generation_actors = []
+        self.killed_actors = []
+
 
     def load_walls(self):
         try:
@@ -42,8 +47,8 @@ class SimState:
             for cell, walls in zip(self.grid_cells, walls_data):
                 cell.save_gen(walls)
     def create_actors(self):
-        self.Actors = [PredActor(self, 2, 1), PreyActor(self, 4, 2), PreyActor(self, 3, 3), PreyActor(self, 10, 4)]
-
+        self.Actors = [ PreyActor(self, 10, 2), PreyActor(self, 30, 3), PreyActor(self, 40, 4), PredActor(self, 32, 1),PredActor(self, 43, 1),PredActor(self, 8, 1)]
+        self.generation_actors = self.Actors
 
     def load(self):
         # Load the saved state
@@ -78,8 +83,19 @@ class SimState:
             json.dump(state, f, indent=4)
         pass
 
+    def reset_generation(self):
+        # Reset the generation
+        for x in self.killed_actors:
+            self.Actors.append(x)
+            self.killed_actors.remove(x)
+        self.generation += 1
+        print(f"Generation: {self.generation}")        
+        self.killed_actors = []
+        pass
+
     def generate_sim(self):
         # Game loop
+        seed(132)
         RES = self.WIDTH, self.HEIGHT
         FONT_SIZE = 32
 
@@ -156,8 +172,12 @@ class SimState:
             sc.fill((50, 50, 50))
             for a in self.Actors:
                 a.preform_action()
-            
-            self.generation += 1
+            if self.Actors[0].moves == self.MaxActions:
+                self.reset_generation()
+
+                self.Actors = self.generation_actors
+
+
             # Draw all cells
             [cell.draw(sc) for cell in self.grid_cells]
             

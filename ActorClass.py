@@ -24,7 +24,7 @@ class Actor:
                 self.actions.append("top")
             if random_actions == 3:
                 self.actions.append("bottom")
-        print(self.actions)
+        #print(self.actions)
     def preform_action(self):
         if self.moves < self.sim_state.MaxActions:
             self.step()
@@ -34,10 +34,14 @@ class Actor:
 
     def step(self):
 
+
+        for actor in self.sim_state.Actors:
+            if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PredActor) and isinstance(self, PreyActor):
+                self.kill()
+
         if self.current_cell:
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
             movable_cells = self.current_cell.check_neighboring_options(self.sim_state.grid_cells)
-            print(str(movable_cells) + str(self.ide))
             if self.actions[self.moves-1] == 'top':
                 for x in movable_cells:
                     if x == self.current_cell.top:
@@ -60,6 +64,12 @@ class Actor:
                         break
         else:
             self.spawn()
+
+    def kill(self):
+        print("killing:", self.ide)
+        self.sim_state.killed_actors.append(self)
+        self.sim_state.Actors.remove(self)
+        
 
     def spawn(self):
         self.current_cell = self.spawn_cell = self.sim_state.grid_cells[self.spawn_index]
