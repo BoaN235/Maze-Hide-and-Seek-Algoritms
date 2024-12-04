@@ -23,7 +23,7 @@ class Actor:
             if random_actions == 2:
                 self.actions.append("top")
             if random_actions == 3:
-                self.actions.append("down")
+                self.actions.append("bottom")
         print(self.actions)
     def preform_action(self):
         if self.moves < self.sim_state.MaxActions:
