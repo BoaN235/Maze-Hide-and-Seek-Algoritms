@@ -48,9 +48,9 @@ class Cell:
         if (hasattr(self.sim_state, 'Actors') and  self.sim_state.Actors != None):
             for a in self.sim_state.Actors:
                 if a.spawn_cell == self:
-                    pygame.draw.rect(screen, a.spawn_color, (x, y, self.tile_size, self.tile_size))            
+                    pygame.draw.circle(screen, a.spawn_color, (x + self.tile_size // 2 , y + self.tile_size // 2), self.tile_size // 4)
                 if a.current_cell == self:
-                    pygame.draw.rect(screen, a.color, (x+15, y+15, self.tile_size/2, self.tile_size/2))
+                    pygame.draw.rect(screen, a.color, (x + self.tile_size / 4, y + self.tile_size / 4, self.tile_size/2, self.tile_size/2))
 
 
         if self.walls['top']:

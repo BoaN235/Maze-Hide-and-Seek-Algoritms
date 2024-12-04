@@ -10,7 +10,7 @@ class SimState:
     def __init__(self):
         self.MaxActions = 100
         self.WIDTH, self.HEIGHT = 1202, 902
-        self.TILE = 50
+        self.TILE = 75
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
         self.generation = 1
         self.pred_score = 0
@@ -162,7 +162,9 @@ class SimState:
         # Game loop
         RES = self.WIDTH, self.HEIGHT
         FONT_SIZE = 32
+        font = pygame.font.Font(None, FONT_SIZE)
         
+        settings_button = Button((1000, 50, 150, 50), "Settings", font, self.settings)
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
@@ -188,4 +190,4 @@ class SimState:
                     exit()
 
             pygame.display.flip()
-            clock.tick(5)    
+            clock.tick(100)    
