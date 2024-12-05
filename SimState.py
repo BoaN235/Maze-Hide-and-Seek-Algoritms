@@ -1,6 +1,8 @@
 import pygame
 from CellClass import Cell
-from ActorClass import Actor, PreyActor, PredActor
+from ActorClass import Actor
+from PredActor import PredActor
+from PreyActor import PreyActor
 from inputs import Button, InputBox, Text, Slider, TransparentBox
 import ast
 import json

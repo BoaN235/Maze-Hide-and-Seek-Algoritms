@@ -1,6 +1,9 @@
 import pygame
 import random
 from random import seed
+# from PredActor import PredActor
+# from PreyActor import PreyActor
+
 
 class Actor:
     def __init__(self, sim_state, spawn_index, ide):
@@ -59,10 +62,7 @@ class Actor:
             return
 
         
-        for actor in self.sim_state.Actors:
-            if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PredActor) and isinstance(self, PreyActor):
-                actor.hunger += 0.1
-                self.kill()
+
 
 
         if self.current_cell:
@@ -89,9 +89,7 @@ class Actor:
                     if x == self.current_cell.bottom:
                         self.current_cell = self.current_cell.bottom
                         break
-            if isinstance(self, PredActor):
-                if self.last_cell == self.current_cell:
-                    self.min_hunger += 0.1
+
             self.move_stack.append(self.current_cell)
 
         else:
@@ -124,40 +122,3 @@ class Actor:
     def genetic_mutations(self):
         pass
 
-class PreyActor(Actor):
-    def __init__(self, sim_state, spawn_index, ide):
-        super().__init__(sim_state, spawn_index, ide)
-        self.color = (0, 255, 0)
-        self.spawn_color = (0, 155, 0)
-        self.id = ide
-  
-    def genetic_mutations(self):
-        pass
-     
-    # def reset(self):
-    #     Actor.reset(self)
-
-
-
-class PredActor(Actor):
-    def __init__(self, sim_state, spawn_index, ide):
-        super().__init__(sim_state, spawn_index, ide)
-        self.color = (255, 0, 0)
-        self.spawn_color = (155, 0, 0)
-        self.id = ide
-        self.sim_state = sim_state
-        self.hunger = 0
-        self.min_hunger = 0
-
-    def check_if_hunger(self):
-        if self.hunger <= self.min_hunger:
-            self.kill()
-        self.hunger = 0
-
-    def genetic_mutations(self):
-        pass
-
-    def reset(self):
-        Actor.reset(self)
-        self.hunger = 0
-        self.min_hunger = 0
