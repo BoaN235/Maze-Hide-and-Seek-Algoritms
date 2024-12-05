@@ -8,12 +8,22 @@ class Actor:
         self.color = (255, 255, 255)
         self.current_cell = None
         self.spawn_index = spawn_index
+        self.dead = False
+        self.move_stack = []
+        self.last_cell = None
+
 
         self.spawn()
         self.moves = 0
         self.actions = []
         self.ide = ide
         seed()
+        self.generate_actions()
+
+
+
+        #print(self.actions)
+    def generate_actions(self):
         for i in range(1, self.sim_state.MaxActions):
             random_actions = random.randint(0, 3)        
             if random_actions == 0:
@@ -24,22 +34,39 @@ class Actor:
                 self.actions.append("top")
             if random_actions == 3:
                 self.actions.append("bottom")
-        #print(self.actions)
     def preform_action(self):
-        if self.moves < self.sim_state.MaxActions:
-            self.step()
-            self.moves += 1
-        elif self.moves == self.sim_state.MaxActions:
-            self.spawn()
+        if not self.dead:
+            if self.moves < self.sim_state.MaxActions:
+                self.step()
+                self.moves += 1
+            elif self.moves == self.sim_state.MaxActions:
+                self.spawn()
+
+    def reset(self):
+        self.genetic_mutations()
+        self.dead = False
+        self.current_cell = None
+        self.move_stack = []
+        self.last_cell = None
+        self.spawn()
+        self.moves = 0
+        self.generate_actions()
+        self.hunger = 0
+        self.min_hunger = 0
 
     def step(self):
+        if self.dead:
+            return
 
-
+        
         for actor in self.sim_state.Actors:
             if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PredActor) and isinstance(self, PreyActor):
+                actor.hunger += 0.1
                 self.kill()
 
+
         if self.current_cell:
+            self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
             movable_cells = self.current_cell.check_neighboring_options(self.sim_state.grid_cells)
             if self.actions[self.moves-1] == 'top':
@@ -62,13 +89,18 @@ class Actor:
                     if x == self.current_cell.bottom:
                         self.current_cell = self.current_cell.bottom
                         break
+            if isinstance(self, PredActor):
+                if self.last_cell == self.current_cell:
+                    self.min_hunger += 0.1
+            self.move_stack.append(self.current_cell)
+
         else:
             self.spawn()
-
+        
     def kill(self):
         print("killing:", self.ide)
-        self.sim_state.killed_actors.append(self)
-        self.sim_state.Actors.remove(self)
+        self.dead = True  # Set dead attribute to True
+
         
 
     def spawn(self):
@@ -89,15 +121,43 @@ class Actor:
         actor.moves = data['moves']
         return actor
 
+    def genetic_mutations(self):
+        pass
+
 class PreyActor(Actor):
     def __init__(self, sim_state, spawn_index, ide):
         super().__init__(sim_state, spawn_index, ide)
         self.color = (0, 255, 0)
         self.spawn_color = (0, 155, 0)
         self.id = ide
+  
+    def genetic_mutations(self):
+        pass
+     
+    # def reset(self):
+    #     Actor.reset(self)
+
+
+
 class PredActor(Actor):
     def __init__(self, sim_state, spawn_index, ide):
         super().__init__(sim_state, spawn_index, ide)
         self.color = (255, 0, 0)
         self.spawn_color = (155, 0, 0)
         self.id = ide
+        self.sim_state = sim_state
+        self.hunger = 0
+        self.min_hunger = 0
+
+    def check_if_hunger(self):
+        if self.hunger <= self.min_hunger:
+            self.kill()
+        self.hunger = 0
+
+    def genetic_mutations(self):
+        pass
+
+    def reset(self):
+        Actor.reset(self)
+        self.hunger = 0
+        self.min_hunger = 0

@@ -1,7 +1,7 @@
 import pygame
 from CellClass import Cell
 from ActorClass import Actor, PreyActor, PredActor
-from inputs import Button, InputBox, text, Slider
+from inputs import Button, InputBox, Text, Slider, TransparentBox
 import ast
 import json
 from random import seed
@@ -12,10 +12,13 @@ class SimState:
         self.WIDTH, self.HEIGHT = 1202, 902
         self.TILE = 75
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
-        self.generation = 1
+        self.generation = 1 
         self.pred_score = 0
         self.generation_actors = []
         self.killed_actors = []
+        self.setting = False
+        self.speed = 100
+
 
 
     def load_walls(self):
@@ -85,13 +88,28 @@ class SimState:
 
     def reset_generation(self):
         # Reset the generation
-        for x in self.killed_actors:
-            self.Actors.append(x)
-            self.killed_actors.remove(x)
+        
+        for x in self.Actors: # Respawn all dead actors
+            x.reset()
+            if isinstance(x, PredActor):
+                x.check_if_hunger()
+            if x.dead:
+                x.genetic_mutations()
+
+                x.dead = False
         self.generation += 1
-        print(f"Generation: {self.generation}")        
-        self.killed_actors = []
+        print(f"Generation: {self.generation}")
         pass
+
+    def settings(self):
+        print("Settings")
+        self.setting = not self.setting
+
+    def draw_settings_screen(self, screen, settings_bar, font, slider, input_box):
+        if self.setting:
+            settings_bar.draw_box()
+            slider.draw_slider()
+            input_box.draw_input_box()
 
     def generate_sim(self):
         # Game loop
@@ -102,8 +120,8 @@ class SimState:
         # Pygame setup
         pygame.init()
         sc = pygame.display.set_mode(RES)
-        font = pygame.font.Font(None, FONT_SIZE)
         clock = pygame.time.Clock()
+        font = pygame.font.Font(None, 32)
 
         sc.fill(pygame.Color(50, 50, 50))
         
@@ -161,15 +179,35 @@ class SimState:
         self.create_actors()
         # Game loop
         RES = self.WIDTH, self.HEIGHT
-        FONT_SIZE = 32
-        font = pygame.font.Font(None, FONT_SIZE)
+        FONT_SIZE = 24
         
-        settings_button = Button((1000, 50, 150, 50), "Settings", font, self.settings)
+
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
         clock = pygame.time.Clock()
         
+        # Create settings bar
+        settings_bar_rect = pygame.Rect(0, 0, 200, self.HEIGHT)
+        settings_bar = TransparentBox(sc, settings_bar_rect, (0, 0, 0), 128)
+
+        # Create settings button
+        settings_button_rect = pygame.Rect(10, 10, 180, 40)
+        settings_button = Button(sc, (0, 0, 255), "Settings", settings_button_rect, font, self.settings)
+
+        # Create slider for speed control
+        slider = Slider(sc, (10, 60), 180, 20, 1, 2000, self.speed)
+
+        # Create input box for precise speed control
+        input_data = {
+            'color_active': (0, 255, 0),
+            'color_passive': (255, 0, 0),
+            'text': str(self.speed),
+            'active': False
+        }
+        input_box_rect = pygame.Rect(10, 100, 180, 32)
+        input_box = InputBox(sc, input_data, font, input_box_rect)
+
         while True:
             sc.fill((50, 50, 50))
             for a in self.Actors:
@@ -180,14 +218,26 @@ class SimState:
                 self.Actors = self.generation_actors
 
 
+
             # Draw all cells
             [cell.draw(sc) for cell in self.grid_cells]
+            
+            
+            settings_button.draw_button()
+
+            # Draw the settings bar and its elements
+            self.draw_settings_screen(sc, settings_bar, font, slider, input_box)
+
+            
             
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                settings_button.handle_event(event)
+                self.speed = int(input_box.handle_event(event))
+
 
             pygame.display.flip()
-            clock.tick(100)    
+            clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay    
