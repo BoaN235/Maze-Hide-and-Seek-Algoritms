@@ -1,6 +1,7 @@
 import pygame
 import random
 from random import seed
+import math
 # from PredActor import PredActor
 # from PreyActor import PreyActor
 
@@ -14,6 +15,8 @@ class Actor:
         self.dead = False
         self.move_stack = []
         self.last_cell = None
+        self.scored_list = []
+        self.current_move_score = 0
 
 
         self.spawn()
@@ -25,18 +28,6 @@ class Actor:
 
 
 
-        #print(self.actions)
-    def generate_actions(self):
-        for i in range(1, self.sim_state.MaxActions):
-            random_actions = random.randint(0, 3)        
-            if random_actions == 0:
-                self.actions.append("left")
-            if random_actions == 1:
-                self.actions.append("right")
-            if random_actions == 2:
-                self.actions.append("top")
-            if random_actions == 3:
-                self.actions.append("bottom")
     def preform_action(self):
         if not self.dead:
             if self.moves < self.sim_state.MaxActions:
@@ -60,11 +51,7 @@ class Actor:
     def step(self):
         if self.dead:
             return
-
         
-
-
-
         if self.current_cell:
             self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
@@ -89,8 +76,17 @@ class Actor:
                     if x == self.current_cell.bottom:
                         self.current_cell = self.current_cell.bottom
                         break
+            move_reward = self.move_reward()
 
-            self.move_stack.append(self.current_cell)
+            self.move_stack.append({
+                'action': self.actions[self.moves-1],
+                'current_cell': self.current_cell,
+                'last_cell': self.last_cell,
+                'move_success': self.current_cell != self.last_cell,
+                'neighboring_options': movable_cells,
+                'move_reward': move_reward
+            })
+            self.scored_list.append(self.score_move(self.moves-1))
 
         else:
             self.spawn()
@@ -121,4 +117,27 @@ class Actor:
 
     def genetic_mutations(self):
         pass
+    
+    
+    def score_move(self, move):
+        self.move_stack
 
+        current_move_stats = self.move_stack[move]
+        if current_move_stats['move_success']:
+            self.current_move_score += 1
+
+        self.current_move_score += current_move_stats['move_reward'] / 10
+        
+        if self.dead:
+            self.current_move_score = 0
+            scored_move = { 
+                'move_num': move,
+                'score': self.current_move_score
+            }   
+            return scored_move  
+        
+        scored_move = { 
+            'move_num': move,
+            'score': self.current_move_score
+          }   
+        return scored_move
