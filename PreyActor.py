@@ -8,14 +8,32 @@ class PreyActor(Actor):
         self.color = (0, 255, 0)
         self.spawn_color = (0, 155, 0)
         self.id = ide
+        self.dead = self.dead
   
-    def genetic_mutations(self):
-        pass
+        
 
     def score_move(self, move):
+        self.move_stack
 
+        current_move_stats = self.move_stack[move]
+        if current_move_stats['move_success']:
+            self.current_move_score += 1
+
+        self.current_move_score += current_move_stats['move_reward'] / 10
         
-        Actor.score_move(self, move)
+        if self.dead:
+            self.current_move_score = 0
+            scored_move = { 
+                'move_num': move,
+                'score': self.current_move_score
+            }   
+            return scored_move  
+        
+        scored_move = { 
+            'move_num': move,
+            'score': self.current_move_score
+          }   
+        return scored_move
 
 
     # def reset(self):

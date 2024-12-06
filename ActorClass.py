@@ -37,16 +37,15 @@ class Actor:
                 self.spawn()
 
     def reset(self):
-        self.genetic_mutations()
+        if self.dead:
+            self.genetic_mutations()
         self.dead = False
         self.current_cell = None
         self.move_stack = []
         self.last_cell = None
         self.spawn()
         self.moves = 0
-        self.generate_actions()
-        self.hunger = 0
-        self.min_hunger = 0
+        # self.generate_actions()
 
     def step(self):
         if self.dead:
@@ -92,7 +91,6 @@ class Actor:
             self.spawn()
         
     def kill(self):
-        print("killing:", self.ide)
         self.dead = True  # Set dead attribute to True
 
         
@@ -116,28 +114,31 @@ class Actor:
         return actor
 
     def genetic_mutations(self):
-        pass
+        chosen_mutation_rate = random.randint(1, 5)  # Randomly choose a mutation rate between 1 and 5
+
+        if self.scored_list and len(self.scored_list) == len(self.actions):
+            scores = [move['score'] for move in self.scored_list]
+            total_score = sum(scores)
+            if total_score > 0:
+                weights = [score / total_score for score in scores]
+            else:
+                weights = [1 / len(self.actions)] * len(self.actions)  # Equal weights if total_score is 0
+        else:
+            weights = [1 / len(self.actions)] * len(self.actions)  # Equal weights if no scores or mismatch
+
+        # Select specific moves to change using weights
+        for i in range(chosen_mutation_rate):
+            chosen_action_index = random.choices(range(len(self.actions)), weights)[0]
+            new_action = random.choice(["left", "right", "top", "bottom"])  # Randomly choose new action
+            self.actions[chosen_action_index] = new_action
+
+        # Regenerate the actions list randomly
+        new_actions = []
+        for i in range(self.sim_state.MaxActions):
+            chosen_action = random.choice(self.actions)  # Randomly choose from the updated actions
+            new_actions.append(chosen_action)
+
+        self.actions = new_actions
+        print(f"Actor {self.ide} has mutated")
     
     
-    def score_move(self, move):
-        self.move_stack
-
-        current_move_stats = self.move_stack[move]
-        if current_move_stats['move_success']:
-            self.current_move_score += 1
-
-        self.current_move_score += current_move_stats['move_reward'] / 10
-        
-        if self.dead:
-            self.current_move_score = 0
-            scored_move = { 
-                'move_num': move,
-                'score': self.current_move_score
-            }   
-            return scored_move  
-        
-        scored_move = { 
-            'move_num': move,
-            'score': self.current_move_score
-          }   
-        return scored_move

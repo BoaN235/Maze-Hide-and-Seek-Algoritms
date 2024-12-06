@@ -52,7 +52,7 @@ class SimState:
             for cell, walls in zip(self.grid_cells, walls_data):
                 cell.save_gen(walls)
     def create_actors(self):
-        self.Actors = [ PreyActor(self, 10, 2), PreyActor(self, 30, 3), PreyActor(self, 40, 4), PredActor(self, 32, 1),PredActor(self, 43, 1),PredActor(self, 8, 1)]
+        self.Actors = [ PreyActor(self, 10, 0), PreyActor(self, 30, 1), PreyActor(self, 40, 2), PredActor(self, 32, 3),PredActor(self, 43, 4),PredActor(self, 8, 5)]
         self.generation_actors = self.Actors
 
     def load(self):
@@ -93,12 +93,6 @@ class SimState:
         
         for x in self.Actors: # Respawn all dead actors
             x.reset()
-            if isinstance(x, PredActor):
-                x.check_if_hunger()
-            if x.dead:
-                x.genetic_mutations()
-
-                x.dead = False
         self.generation += 1
         print(f"Generation: {self.generation}")
         pass
@@ -214,7 +208,7 @@ class SimState:
             sc.fill((50, 50, 50))
             for a in self.Actors:
                 a.preform_action()
-            if self.Actors[0].moves == self.MaxActions:
+            if self.Actors[5].moves == self.MaxActions:
                 self.reset_generation()
 
                 self.Actors = self.generation_actors

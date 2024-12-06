@@ -12,14 +12,14 @@ class PredActor(Actor):
         self.hunger = 0
         self.min_hunger = 0
         self.killed = False
+        self.dead = self.dead
 
     def check_if_hunger(self):
         if self.hunger <= self.min_hunger:
             self.kill()
         self.hunger = 0
 
-    def genetic_mutations(self):
-        pass
+
 
     def reset(self):
         Actor.reset(self)
@@ -35,7 +35,7 @@ class PredActor(Actor):
         
         Actor.step(self)
         if self.last_cell == self.current_cell:
-            self.min_hunger += 0.1
+            self.min_hunger += 0.025
     
     def generate_actions(self):
         for i in range(1, self.sim_state.MaxActions):
@@ -53,6 +53,35 @@ class PredActor(Actor):
         return 0
 
     def score_move(self, move):
-        if self.killed:
-            self.current_move_score += 1     
+  
         Actor.score_move(self, move)
+
+    def score_move(self, move):
+        self.move_stack
+
+        current_move_stats = self.move_stack[move]
+        if self.killed:
+            self.current_move_score += 1
+            self.killed = False   
+
+        self.current_move_score += current_move_stats['move_reward'] / 10
+        
+        if self.dead:
+            self.current_move_score = 0
+            scored_move = { 
+                'move_num': move,
+                'score': self.current_move_score
+            }   
+            return scored_move  
+        
+        scored_move = { 
+            'move_num': move,
+            'score': self.current_move_score
+          }   
+        return scored_move
+    
+    def reset(self):
+        self.hunger = 0
+        self.min_hunger = 0
+        self.check_if_hunger()
+        Actor.reset(self)
