@@ -7,12 +7,13 @@ from inputs import Button, InputBox, Text, Slider, TransparentBox
 import ast
 import json
 from random import seed
+import random
 
 class SimState:
     def __init__(self):
         self.MaxActions = 100
         self.WIDTH, self.HEIGHT = 1202, 902
-        self.TILE = 75
+        self.TILE = 25
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
         self.generation = 1 
         self.pred_score = 0
@@ -20,6 +21,10 @@ class SimState:
         self.killed_actors = []
         self.setting = False
         self.speed = 100
+        self.preds = 10 
+        self.preys = 50       
+        self.Actors = []
+
 
 
 
@@ -52,8 +57,20 @@ class SimState:
             for cell, walls in zip(self.grid_cells, walls_data):
                 cell.save_gen(walls)
     def create_actors(self):
-        self.Actors = [ PreyActor(self, 10, 0), PreyActor(self, 30, 1), PreyActor(self, 40, 2), PredActor(self, 32, 3),PredActor(self, 43, 4),PredActor(self, 8, 5)]
+        total_actors = self.preds + self.preys
+        spawn_indices = random.sample(range(len(self.grid_cells)), total_actors)
+
+        for i in range(self.preds):
+            spawn_index = spawn_indices.pop()
+            self.Actors.append(PredActor(self, spawn_index, i))
+
+        for i in range(self.preys):
+            spawn_index = spawn_indices.pop()
+            self.Actors.append(PreyActor(self, spawn_index, i))
+
+
         self.generation_actors = self.Actors
+
 
     def load(self):
         # Load the saved state
@@ -208,7 +225,7 @@ class SimState:
             sc.fill((50, 50, 50))
             for a in self.Actors:
                 a.preform_action()
-            if self.Actors[5].moves == self.MaxActions:
+            if self.Actors[self.preds + self.preys - 1].moves >= self.MaxActions:
                 self.reset_generation()
 
                 self.Actors = self.generation_actors
