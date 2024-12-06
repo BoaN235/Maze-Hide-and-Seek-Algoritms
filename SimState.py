@@ -21,8 +21,8 @@ class SimState:
         self.killed_actors = []
         self.setting = False
         self.speed = 100
-        self.preds = 10 
-        self.preys = 50       
+        self.preds = 20
+        self.preys = 100       
         self.Actors = []
 
 
@@ -222,7 +222,10 @@ class SimState:
         input_box = InputBox(sc, input_data, font, input_box_rect)
 
         while True:
-            sc.fill((50, 50, 50))
+            sc.fill((30, 30, 30))
+            #sc.fill((0, 0, 0)) cool mode
+            #sc.fill((255, 255, 255)) try it I DARE YOU
+            
             for a in self.Actors:
                 a.preform_action()
             if self.Actors[self.preds + self.preys - 1].moves >= self.MaxActions:

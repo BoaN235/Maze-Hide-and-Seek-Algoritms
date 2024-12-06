@@ -54,14 +54,16 @@ class Cell:
                         pygame.draw.rect(screen, a.color, (x + self.tile_size / 4, y + self.tile_size / 4, self.tile_size/2, self.tile_size/2))
 
 
+
+
         if self.walls['top']:
-            pygame.draw.line(screen, pygame.Color(150, 100, 0), (x, y), (x + self.tile_size, y), 2)
+            pygame.draw.line(screen, pygame.Color(0, 0, 0), (x, y), (x + self.tile_size, y), 2)
         if self.walls['right']:
-            pygame.draw.line(screen, pygame.Color(150, 100, 0), (x + self.tile_size, y), (x + self.tile_size, y + self.tile_size), 2)
+            pygame.draw.line(screen, pygame.Color(0, 0, 0), (x + self.tile_size, y), (x + self.tile_size, y + self.tile_size), 2)
         if self.walls['bottom']:
-            pygame.draw.line(screen, pygame.Color(150, 100, 0), (x + self.tile_size, y + self.tile_size), (x, y + self.tile_size), 2)
+            pygame.draw.line(screen, pygame.Color(0, 0, 0), (x + self.tile_size, y + self.tile_size), (x, y + self.tile_size), 2)
         if self.walls['left']:
-            pygame.draw.line(screen, pygame.Color(150, 100, 0), (x, y + self.tile_size), (x, y), 2)
+            pygame.draw.line(screen, pygame.Color(0, 0, 0), (x, y + self.tile_size), (x, y), 2)
 
     def check_cell(self, x, y, grid_cells):
         find_index = lambda x, y: x + y * self.cols
