@@ -1,13 +1,15 @@
 import pygame
 import random
 from random import seed
+from numba import cuda
+import numpy as np
 import math
 # from PredActor import PredActor
 # from PreyActor import PreyActor
 
 
 class Actor:
-    def __init__(self, sim_state, spawn_index, ide):
+    def __init__(self, sim_state, spawn_index, ide, is_child, parent):
         self.sim_state = sim_state  # Ensure sim_state is initialized first
         self.color = (255, 255, 255)
         self.current_cell = None
@@ -17,17 +19,22 @@ class Actor:
         self.last_cell = None
         self.scored_list = []
         self.current_move_score = 0
+        self.reproducing = False
+        self.is_child = is_child
+        self.parent = parent
 
 
         self.spawn()
         self.moves = 0
-        self.actions = []
         self.ide = ide
         seed()
-        self.generate_actions()
 
-
-
+        self.actions = []
+        if self.is_child:
+            self.actions = self.parent.actions
+        else:
+            self.generate_actions()
+    
     def preform_action(self):
         if not self.dead:
             if self.moves < self.sim_state.MaxActions:
@@ -39,6 +46,8 @@ class Actor:
     def reset(self):
         if self.dead:
             self.genetic_mutations()
+        if self.reproducing == True:
+            self.reproducing_actor()
         self.dead = False
         self.current_cell = None
         self.move_stack = []
@@ -46,7 +55,42 @@ class Actor:
         self.spawn()
         self.moves = 0
         # self.generate_actions()
+    
+    def reproducing_actor(self):
+        if not self.current_cell:
+            return None
 
+        parent_cell = self.current_cell
+        grid_cells = self.sim_state.grid_cells
+
+        distances = np.zeros(len(grid_cells), dtype=np.float32)
+        parent_cell_coords = np.array([parent_cell.x, parent_cell.y], dtype=np.float32)
+        grid_cells_coords = np.array([[cell.x, cell.y] for cell in grid_cells], dtype=np.float32)
+
+        threadsperblock = 32
+        blockspergrid = (len(grid_cells) + (threadsperblock - 1)) // threadsperblock
+
+        self.calculate_distances[blockspergrid, threadsperblock](parent_cell_coords, grid_cells_coords, distances)
+
+        distances = distances.copy_to_host()
+        total_distance = np.sum(distances)
+        if total_distance > 0:
+            weights = [1 / distance if distance > 0 else 1 for distance in distances]
+        else:
+            weights = [1] * len(grid_cells)  # Equal weights if total_distance is 0
+
+        new_actor_location = random.choices(grid_cells, weights)[0]
+        return new_actor_location
+
+    @staticmethod
+    @cuda.jit
+    def calculate_distances(parent_cell_coords, grid_cells_coords, distances):
+        idx = cuda.grid(1)
+        if idx < len(grid_cells_coords):
+            cell_coords = grid_cells_coords[idx]
+            distances[idx] = math.sqrt((parent_cell_coords[0] - cell_coords[0]) ** 2 + (parent_cell_coords[1] - cell_coords[1]) ** 2)
+
+    
     def step(self):
         if self.dead:
             return
@@ -75,7 +119,6 @@ class Actor:
                     if x == self.current_cell.bottom:
                         self.current_cell = self.current_cell.bottom
                         break
-            move_reward = self.move_reward()
 
             self.move_stack.append({
                 'action': self.actions[self.moves-1],
@@ -83,7 +126,6 @@ class Actor:
                 'last_cell': self.last_cell,
                 'move_success': self.current_cell != self.last_cell,
                 'neighboring_options': movable_cells,
-                'move_reward': move_reward
             })
             self.scored_list.append(self.score_move(self.moves-1))
 

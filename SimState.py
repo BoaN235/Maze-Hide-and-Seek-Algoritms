@@ -11,7 +11,7 @@ import random
 from openpyxl import Workbook , load_workbook
 import time
 from Notification import Email
-
+from numba import jit, cuda
 
 class SimState:
     def __init__(self):
@@ -28,7 +28,7 @@ class SimState:
         self.preds = 20
         self.preys = 100       
         self.Actors = []
-        self.max_generations = 10
+        self.max_generations = 100
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -74,11 +74,11 @@ class SimState:
 
         for i in range(self.preds):
             spawn_index = spawn_indices.pop()
-            self.Actors.append(PredActor(self, spawn_index, i))
+            self.Actors.append(PredActor(self, spawn_index, i, False, None))
 
         for i in range(self.preys):
             spawn_index = spawn_indices.pop()
-            self.Actors.append(PreyActor(self, spawn_index, i))
+            self.Actors.append(PreyActor(self, spawn_index, i, False, None))
 
 
         self.generation_actors = self.Actors
@@ -331,11 +331,11 @@ class SimState:
 
             pygame.display.flip()
             clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay    
-    
+
     def start_review(self):
         # Game loop
         RES = self.WIDTH, self.HEIGHT
-        FONT_SIZE = 24
+        FONT_SIZE = 34
         
 
 
@@ -345,14 +345,16 @@ class SimState:
         clock = pygame.time.Clock()
         
 
-        Done_Text = Text(sc, "Done", (self.WIDTH // 2, self.HEIGHT // 2), font)
 
+        Texts = [Text(sc, (self.WIDTH // 2, self.HEIGHT // 2 - 100), "Finished", font, (255, 255, 255)),Text(sc, (self.WIDTH // 2 , self.HEIGHT // 2), "Please check The Spread Sheet", font, (255, 255, 255))]
 
         while True:
-            #sc.fill((30, 30, 30))
-            sc.fill((0, 0, 0)) #cool mode
+            sc.fill((30, 30, 30))
+            #sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
-            Done_Text.draw_text()
+            
+            for x in Texts:
+                x.draw_text()
 
             
             # Handle events

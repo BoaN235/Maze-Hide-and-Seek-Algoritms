@@ -67,7 +67,7 @@ class Text:
         self.font = font
         self.color = color
         self.position = position
-        self.text_surface = font.render(self.text, True, self.color)
+        self.text_surface = self.font.render(self.text, True, self.color)
         self.text_rect = self.text_surface.get_rect(center=self.position)  # Position the text
 
 
