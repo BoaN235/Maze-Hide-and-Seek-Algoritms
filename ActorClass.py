@@ -114,7 +114,7 @@ class Actor:
         return actor
 
     def genetic_mutations(self):
-        chosen_mutation_rate = random.randint(1, 5)  # Randomly choose a mutation rate between 1 and 5
+        chosen_mutation_rate = random.randint(1, 2)  # Randomly choose a mutation rate between 1 and 2
 
         if self.scored_list and len(self.scored_list) == len(self.actions):
             scores = [move['score'] for move in self.scored_list]
@@ -139,6 +139,6 @@ class Actor:
             new_actions.append(chosen_action)
 
         self.actions = new_actions
-        print(f"Actor {self.ide} has mutated")
+        #print(f"Actor {self.ide} has mutated")
     
     

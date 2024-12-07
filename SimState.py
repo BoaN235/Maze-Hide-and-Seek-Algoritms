@@ -24,7 +24,10 @@ class SimState:
         self.preds = 20
         self.preys = 100       
         self.Actors = []
+        self.max_generations = 3#ignore this 
+        self.running = True
 
+    print("Generation: 1")
 
 
 
@@ -110,21 +113,27 @@ class SimState:
         pass
     
     def end_sim(self):
-        # End the simulation
+        self.running = False
+        self.start_review()
         pass
 
     
 
     def reset_generation(self):
         # Reset the generation
+
         self.save_gen_stats()
-        for x in self.Actors: # Respawn all dead actors
-            x.reset()
         self.generation += 1
         print(f"Generation: {self.generation}")
+
+        if self.generation >= self.max_generations:
+            self.end_sim()
+        for x in self.Actors: # Respawn all dead actors
+            x.reset()
+
+
         pass
     def settings(self):
-        print("Settings")
         self.setting = not self.setting
 
     def draw_settings_screen(self, screen, settings_bar, font, slider, input_box):
@@ -155,7 +164,7 @@ class SimState:
         done = False
 
         # Main loop
-        while True:
+        while self.running:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -230,10 +239,10 @@ class SimState:
         input_box_rect = pygame.Rect(10, 100, 180, 32)
         input_box = InputBox(sc, input_data, font, input_box_rect)
 
-        while True:
-            sc.fill((30, 30, 30))
-            #sc.fill((0, 0, 0)) cool mode
-            #sc.fill((255, 255, 255)) try it I DARE YOU
+        while self.running:
+            #sc.fill((30, 30, 30))
+            sc.fill((0, 0, 0)) #cool mode
+            #sc.fill((255, 255, 255)) #try it I DARE YOU
             
             for a in self.Actors:
                 a.preform_action()
@@ -272,15 +281,14 @@ class SimState:
         RES = self.WIDTH, self.HEIGHT
         FONT_SIZE = 24
         
-
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
         clock = pygame.time.Clock()
         
         while True:
-            sc.fill((30, 30, 30))
-            #sc.fill((0, 0, 0)) cool mode
+            #sc.fill((30, 30, 30))
+            sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
       
             
