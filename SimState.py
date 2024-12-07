@@ -253,6 +253,7 @@ class SimState:
 
 
 
+
             # Draw all cells
             [cell.draw(sc) for cell in self.grid_cells]
             
@@ -281,16 +282,21 @@ class SimState:
         RES = self.WIDTH, self.HEIGHT
         FONT_SIZE = 24
         
+
+
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
         clock = pygame.time.Clock()
         
+
+        
         while True:
             #sc.fill((30, 30, 30))
             sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
-      
+
+
             
             # Handle events
             for event in pygame.event.get():
