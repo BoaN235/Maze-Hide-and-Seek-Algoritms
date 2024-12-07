@@ -10,6 +10,8 @@ from random import seed
 import random
 from openpyxl import Workbook , load_workbook
 import time
+from Notification import Email
+
 
 class SimState:
     def __init__(self):
@@ -26,7 +28,7 @@ class SimState:
         self.preds = 20
         self.preys = 100       
         self.Actors = []
-        self.max_generations = 1000 
+        self.max_generations = 10
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -157,7 +159,7 @@ class SimState:
     def end_sim(self):
         self.running = False
         self.start_review()
-        load_workbook(self.path)
+        Email.send_email()
         pass
 
     
