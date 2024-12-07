@@ -8,14 +8,16 @@ import ast
 import json
 from random import seed
 import random
+from openpyxl import Workbook , load_workbook
+import time
 
 class SimState:
     def __init__(self):
-        self.MaxActions = 100
+        self.MaxActions = 50
         self.WIDTH, self.HEIGHT = 1202, 902
         self.TILE = 25
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
-        self.generation = 1 
+        self.generation = 0
         self.pred_score = 0
         self.generation_actors = []
         self.killed_actors = []
@@ -24,11 +26,16 @@ class SimState:
         self.preds = 20
         self.preys = 100       
         self.Actors = []
-        self.max_generations = 3#ignore this 
+        self.max_generations = 1000 
         self.running = True
-
-    print("Generation: 1")
-
+        self.path = "data/simdata.xlsx"
+        self.workbook = self.create_workbook()
+        self.current_row = 2
+        self.sheet = self.create_sheet()
+        self.start_time = time.time()
+        self.end_time = time.time()
+        self.time = time.time()
+        self.time_in_ms = self.time * 1000
 
 
     def load_walls(self):
@@ -104,33 +111,79 @@ class SimState:
             'grid_cells': [cell.to_dict() for cell in self.grid_cells],
             'actors': [actor.to_dict() for actor in self.Actors]
         }
-        with open("state.json", 'w') as f:
+        with open("state.json", 'a') as f:
             json.dump(state, f, indent=4)
         pass
 
     def save_gen_stats(self):
-        # Save the generation statistics
-        pass
+        # Save the current state
+        for x in self.Actors:
+            if x.dead:
+                self.pred_score += 1
+
+
+        if self.pred_score < self.preys:
+            wins_data = "prey wins"
+        if self.pred_score > self.preys:
+            wins_data = "pred wins"
+
+        self.sheet["A" + str(self.current_row)] = self.generation
+        self.sheet["B" + str(self.current_row)] = wins_data
+        self.sheet["C" + str(self.current_row)] = self.preys
+        self.sheet["D" + str(self.current_row)] = self.preds
+        self.sheet["E" + str(self.current_row)] = self.time_in_ms
+
+        self.current_row += 1
+
+        self.workbook.save(self.path)
+
+    def create_workbook(self):
+        workbook = Workbook()
+        
+        return workbook
     
+    def create_sheet(self):
+        sheet = self.workbook.active
+        sheet.freeze_panes = "A1"
+        headers = ["Generation", "Winner", "Prey", "Pred", "Time(ms)"]
+        sheet["A1"] = headers[0]
+        sheet["B1"] = headers[1]
+        sheet["C1"] = headers[2]
+        sheet["D1"] = headers[3]
+        sheet.title = "Wins"
+        self.workbook.save(self.path)
+        return sheet
+
     def end_sim(self):
         self.running = False
         self.start_review()
+        load_workbook(self.path)
         pass
 
     
 
     def reset_generation(self):
         # Reset the generation
-
+        self.end_time = time.time()
+        self.time = self.end_time - self.start_time
+        
+                # Convert time to milliseconds
+        self.time_in_ms = self.time * 1000
+        # Convert time to seconds
+        time_in_s = self.time
+        
         self.save_gen_stats()
+
+
         self.generation += 1
-        print(f"Generation: {self.generation}")
+        print(f"Generation: {self.generation}  time: {time_in_s:.2f} seconds ({self.time_in_ms:.0f} milliseconds)")
+        self.pred_score = 0
 
         if self.generation >= self.max_generations:
             self.end_sim()
         for x in self.Actors: # Respawn all dead actors
             x.reset()
-
+        self.start_time = time.time()
 
         pass
     def settings(self):
