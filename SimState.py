@@ -345,12 +345,14 @@ class SimState:
         clock = pygame.time.Clock()
         
 
-        
+        Done_Text = Text(sc, "Done", (self.WIDTH // 2, self.HEIGHT // 2), font)
+
+
         while True:
             #sc.fill((30, 30, 30))
             sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
-
+            Done_Text.draw_text()
 
             
             # Handle events
