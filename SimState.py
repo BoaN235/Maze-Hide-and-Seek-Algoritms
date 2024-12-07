@@ -335,24 +335,24 @@ class SimState:
     def start_review(self):
         # Game loop
         RES = self.WIDTH, self.HEIGHT
-        FONT_SIZE = 24
+        FONT_SIZE = 34
         
 
 
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
+        titlefont = pygame.font.Font(None, 68)
         clock = pygame.time.Clock()
         
-
-        Done_Text = Text(sc, "Done", (self.WIDTH // 2, self.HEIGHT // 2), font)
-
+        texts = [Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2 - 100), "Finished", titlefont, (255, 255, 255)), Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2), "Please look at the exel spreadsheet", font, (255, 255, 255)), Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2 + 100), "Please do not close this tab", font, (255, 0, 0))]
 
         while True:
             #sc.fill((30, 30, 30))
             sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
-            Done_Text.draw_text()
+            for x in texts:
+                x.draw_text()
 
             
             # Handle events

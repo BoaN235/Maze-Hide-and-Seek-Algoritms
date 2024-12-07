@@ -9,33 +9,35 @@ class PredActor(Actor):
         self.spawn_color = (155, 0, 0)
         self.id = ide
         self.sim_state = sim_state
-        self.hunger = 0
+        self.food = 1
         self.min_hunger = 0
         self.killed = False
         self.dead = self.dead
 
-    def check_if_hunger(self):
-        if self.hunger <= self.min_hunger:
-            self.kill()
-        self.hunger = 0
+
+
 
 
 
     def reset(self):
-        Actor.reset(self)
-        self.hunger = 0
+        self.food = 1
         self.min_hunger = 0
+        
+        Actor.reset(self)
 
     def step(self):
+        if self.food <= self.min_hunger:
+            self.kill()
+            print("Predator has starved to death: "+ str(self.id))
         for actor in self.sim_state.Actors:
             if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PreyActor):
-                self.hunger += 1
+                self.food += 1
                 self.killed = True
                 actor.kill()
         
         Actor.step(self)
-        if self.last_cell == self.current_cell:
-            self.min_hunger += 0.025
+        if not self.last_cell == self.current_cell:
+            self.food -= 0.05
     
     def generate_actions(self):
         for i in range(1, self.sim_state.MaxActions):
@@ -79,9 +81,3 @@ class PredActor(Actor):
             'score': self.current_move_score
           }   
         return scored_move
-    
-    def reset(self):
-        self.hunger = 0
-        self.min_hunger = 0
-        self.check_if_hunger()
-        Actor.reset(self)
