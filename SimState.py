@@ -105,15 +105,24 @@ class SimState:
             json.dump(state, f, indent=4)
         pass
 
+    def save_gen_stats(self):
+        # Save the generation statistics
+        pass
+    
+    def end_sim(self):
+        # End the simulation
+        pass
+
+    
+
     def reset_generation(self):
         # Reset the generation
-        
+        self.save_gen_stats()
         for x in self.Actors: # Respawn all dead actors
             x.reset()
         self.generation += 1
         print(f"Generation: {self.generation}")
         pass
-
     def settings(self):
         print("Settings")
         self.setting = not self.setting
@@ -257,3 +266,30 @@ class SimState:
 
             pygame.display.flip()
             clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay    
+    
+    def start_review(self):
+        # Game loop
+        RES = self.WIDTH, self.HEIGHT
+        FONT_SIZE = 24
+        
+
+        pygame.init()
+        sc = pygame.display.set_mode(RES)
+        font = pygame.font.Font(None, FONT_SIZE)
+        clock = pygame.time.Clock()
+        
+        while True:
+            sc.fill((30, 30, 30))
+            #sc.fill((0, 0, 0)) cool mode
+            #sc.fill((255, 255, 255)) try it I DARE YOU
+      
+            
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+
+            pygame.display.flip()
+            clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay  

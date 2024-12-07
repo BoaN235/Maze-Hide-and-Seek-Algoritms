@@ -17,6 +17,13 @@
         "type": "debugpy",
         "request": "launch",
         "program": "StartSettingsScreen.py"
+        },
+        {
+            "name": "Python Debugger: Results",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "LastResults.py"
         }
+    
     ]
 }
