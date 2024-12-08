@@ -37,6 +37,7 @@ class Cell:
         self.right = None
         self.bottom = None
         self.left = None
+        self.food = 0
     def draw_current_cell(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
         pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))

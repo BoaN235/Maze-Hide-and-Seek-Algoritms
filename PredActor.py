@@ -1,6 +1,9 @@
-from ActorClass import Actor
+from ActorClass import Actor, CauseOfDeath
 from PreyActor import PreyActor
 import random
+from enum import Enum
+
+
 
 class PredActor(Actor):
     def __init__(self, sim_state, spawn_index, ide):
@@ -9,17 +12,15 @@ class PredActor(Actor):
         self.spawn_color = (155, 0, 0)
         self.id = ide
         self.sim_state = sim_state
-        self.food = 1
-        self.min_hunger = 0
         self.killed = False
         self.dead = self.dead
+        self.min_hunger = 20
 
 
 
+    def kill(self, cause_of_death:CauseOfDeath=None):
 
-    def kill(self):
-        self.sim_state.preds -= 1
-        Actor.kill(self)
+        Actor.kill(self, cause_of_death)
 
 
     def reset(self):
@@ -29,18 +30,14 @@ class PredActor(Actor):
         Actor.reset(self)
 
     def step(self):
-        if self.food <= self.min_hunger:
-            self.kill()
-            print("Predator has starved to death: "+ str(self.id))
         for actor in self.sim_state.Actors:
             if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PreyActor):
-                self.food += 1
+                self.food += actor.food 
                 self.killed = True
-                actor.kill()
+                actor.kill(CauseOfDeath.KILLED)
         
         Actor.step(self)
-        if not self.last_cell == self.current_cell:
-            self.food -= 0.05
+
     
     def generate_actions(self):
         for i in range(1, self.sim_state.MaxActions):

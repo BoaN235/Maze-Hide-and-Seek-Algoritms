@@ -4,6 +4,9 @@ lastmaze.txt
 
 Notification.py
 
+data/Replays/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

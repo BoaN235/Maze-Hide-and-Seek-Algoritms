@@ -2,9 +2,13 @@ import pygame
 import random
 from random import seed
 import math
+from enum import Enum
 # from PredActor import PredActor
 # from PreyActor import PreyActor
 
+class CauseOfDeath(Enum):
+    STARVATION = "starvation"
+    KILLED = "killed"
 
 class Actor:
     def __init__(self, sim_state, spawn_index, ide):
@@ -17,6 +21,9 @@ class Actor:
         self.last_cell = None
         self.scored_list = []
         self.current_move_score = 0
+        self.food = 1
+
+        self.cause_of_death = None
 
 
 
@@ -52,6 +59,10 @@ class Actor:
         if self.dead:
             return
         
+        if self.food <= self.min_hunger:
+            self.kill(CauseOfDeath.STARVATION)
+            print("Predator has starved to death: "+ str(self.id))
+        
         if self.current_cell:
             self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
@@ -76,6 +87,9 @@ class Actor:
                     if x == self.current_cell.bottom:
                         self.current_cell = self.current_cell.bottom
                         break
+            if not self.last_cell == self.current_cell:
+                self.food -= 0.05
+            
             move_reward = self.move_reward()
 
             self.move_stack.append({
@@ -91,10 +105,12 @@ class Actor:
         else:
             self.spawn()
         
-    def kill(self):
+    def kill(self, cause_of_death:CauseOfDeath=None):
         self.dead = True  # Set dead attribute to True
-        if self.sim_state.preys < 0:
-            self.sim_state.preys = 0
+        self.cause_of_death = cause_of_death
+
+
+
 
         
 

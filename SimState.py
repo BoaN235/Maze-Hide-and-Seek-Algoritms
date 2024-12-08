@@ -125,14 +125,13 @@ class SimState:
         # Save the current state
         
         save = []
-        if self.generation % self.save_every == 0:
-            for x in self.Actors:
-                if x.dead:
-                    self.pred_score += 1
-            for a in self.Actors:
-                save.append(a.actions)
+
+        for x in self.Actors:
+            if x.dead:
+                self.pred_score += 1
+        for a in self.Actors:
+            save.append(a.actions)
             
-        save = {"generation": self.generation}  # Example data to save
         directory = "data/Replays"
         filename = f"{directory}/replay_{self.generation}.json"
 
@@ -146,25 +145,33 @@ class SimState:
         except FileNotFoundError:
             print(f"File not found: {filename}")
 
+        preds = 0
+        preys = 0
+        starved_prey = 0
+        starved_pred = 0
 
-        if self.preys < 0:
-            self.preys = 0
-        if self.pred_score <= self.preys:
-            wins_data = "prey wins"
-        elif self.pred_score >= self.preys:
-            wins_data = "pred wins"
-
+        for a in self.Actors:
+            if not a.dead:
+                if isinstance(a, PredActor):
+                    if a.cause_of_death == "starved":
+                        starved_pred += 1
+                    preds += 1
+                elif isinstance(a, PreyActor):
+                    if a.cause_of_death == "starved":
+                        starved_prey += 1
+                    preys += 1
+                
 
         self.sheet["A" + str(self.current_row)] = self.generation
-        self.sheet["B" + str(self.current_row)] = wins_data
-        self.sheet["C" + str(self.current_row)] = self.preys
-        self.sheet["D" + str(self.current_row)] = self.preds
-        self.sheet["E" + str(self.current_row)] = self.time_in_ms
+        self.sheet["B" + str(self.current_row)] = "wins_data"
+        self.sheet["C" + str(self.current_row)] = preys
+        self.sheet["D" + str(self.current_row)] = preds 
+        self.sheet["E" + str(self.current_row)] = self.time_in_ms # yes
+        self.sheet["F" + str(self.current_row)] = starved_prey #prey starved
+        self.sheet["G" + str(self.current_row)] = starved_pred #predator starved
 
         self.current_row += 1
 
-        self.preds = self.max_preds
-        self.preys = self.max_preys
 
         self.workbook.save(self.path)
 
@@ -181,13 +188,15 @@ class SimState:
     def create_sheet(self):
         sheet = self.workbook.active
         sheet.freeze_panes = "A1"
-        headers = ["Generation", "Winner", "Prey", "Pred", "Time(ms)"]
+        headers = ["Generation", "Winner", "Prey", "Pred", "Time(ms)","prey starved","predator starved"]
         sheet["A1"] = headers[0]
         sheet["B1"] = headers[1]
         sheet["C1"] = headers[2]
         sheet["D1"] = headers[3]
         sheet["E1"] = headers[4]
-        sheet.title = "Wins"
+        sheet["F1"] = headers[5]
+        sheet["G1"] = headers[6]
+        sheet.title = "Data"
         self.workbook.save(self.path)
         return sheet
 
@@ -249,6 +258,9 @@ class SimState:
 
         sc.fill(pygame.Color(50, 50, 50))
         
+        for cell in self.grid_cells:
+            cell.food = random.randint(0, 4)
+
         # Initialize the grid
         self.grid_cells = [Cell(col, row, self) for row in range(self.rows) for col in range(self.cols)]
         current_cell =  self.grid_cells[0]

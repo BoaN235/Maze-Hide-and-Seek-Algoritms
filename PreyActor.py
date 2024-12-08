@@ -1,4 +1,4 @@
-from ActorClass import Actor
+from ActorClass import Actor, CauseOfDeath
 import random
 
 
@@ -9,11 +9,10 @@ class PreyActor(Actor):
         self.spawn_color = (0, 155, 0)
         self.id = ide
         self.dead = self.dead
-  
+        self.min_hunger = 30
         
-    def kill(self):
-        self.sim_state.preys -= 1
-        Actor.kill(self)
+    def kill(self, cause_of_death:CauseOfDeath=None):
+        Actor.kill(self, cause_of_death)
 
     def score_move(self, move):
         self.move_stack
@@ -54,6 +53,9 @@ class PreyActor(Actor):
             if random_actions == 3:
                 self.actions.append("bottom")
     
-    def move_reward(self):
+    def step(self):
+        if self.current_cell.food > 0:
+            self.current_cell.food -= 1
+            self.food += 1
 
-        return 0
+        Actor.step(self)
