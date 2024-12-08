@@ -14,8 +14,12 @@ class PredActor(Actor):
         self.sim_state = sim_state
         self.killed = False
         self.dead = self.dead
-        self.min_hunger = 20
-
+        self.start_hunger = 20
+        self.start_food = 35
+        self.min_hunger = self.start_hunger
+        self.food = 35
+        self.turns_without_food = 0
+        self.sim_state.MaxTurnsWithoutFood = 10
 
 
     def kill(self, cause_of_death:CauseOfDeath=None):
@@ -23,11 +27,7 @@ class PredActor(Actor):
         Actor.kill(self, cause_of_death)
 
 
-    def reset(self):
-        self.food = 1
-        self.min_hunger = 0
-        
-        Actor.reset(self)
+
 
     def step(self):
         for actor in self.sim_state.Actors:
@@ -50,34 +50,7 @@ class PredActor(Actor):
                 self.actions.append("top")
             if random_actions == 3:
                 self.actions.append("bottom")
-    
-    def move_reward(self):
-        return 0
 
     def score_move(self, move):
   
         Actor.score_move(self, move)
-
-    def score_move(self, move):
-        self.move_stack
-
-        current_move_stats = self.move_stack[move]
-        if self.killed:
-            self.current_move_score += 1
-            self.killed = False   
-
-        self.current_move_score += current_move_stats['move_reward'] / 10
-        
-        if self.dead:
-            self.current_move_score = 0
-            scored_move = { 
-                'move_num': move,
-                'score': self.current_move_score
-            }   
-            return scored_move  
-        
-        scored_move = { 
-            'move_num': move,
-            'score': self.current_move_score
-          }   
-        return scored_move

@@ -21,7 +21,7 @@ class Actor:
         self.last_cell = None
         self.scored_list = []
         self.current_move_score = 0
-        self.food = 1
+
 
         self.cause_of_death = None
 
@@ -47,7 +47,10 @@ class Actor:
     def reset(self):
         if self.dead:
             self.genetic_mutations()
-        self.dead = False
+            self.dead = False
+        self.food = self.start_food
+        self.min_hunger = self.start_hunger
+
         self.current_cell = None
         self.move_stack = []
         self.last_cell = None
@@ -58,10 +61,14 @@ class Actor:
     def step(self):
         if self.dead:
             return
-        
+        last_food = self.food
         if self.food <= self.min_hunger:
-            self.kill(CauseOfDeath.STARVATION)
-            print("Predator has starved to death: "+ str(self.id))
+            if self.turns_without_food >= self.sim_state.MaxTurnsWithoutFood:
+                self.kill(CauseOfDeath.STARVATION)
+                self.turns_without_food = 0
+            else:
+                self.turns_without_food += 1
+
         
         if self.current_cell:
             self.last_cell = self.current_cell      
@@ -88,9 +95,10 @@ class Actor:
                         self.current_cell = self.current_cell.bottom
                         break
             if not self.last_cell == self.current_cell:
-                self.food -= 0.05
+                self.food -= 0.1
+                self.min_hunger += 1
             
-            move_reward = self.move_reward()
+            food_difference = last_food - self.food
 
             self.move_stack.append({
                 'action': self.actions[self.moves-1],
@@ -98,7 +106,7 @@ class Actor:
                 'last_cell': self.last_cell,
                 'move_success': self.current_cell != self.last_cell,
                 'neighboring_options': movable_cells,
-                'move_reward': move_reward
+                'food': food_difference,
             })
             self.scored_list.append(self.score_move(self.moves-1))
 
@@ -136,7 +144,7 @@ class Actor:
         chosen_mutation_rate = random.randint(0, 2)  # Randomly choose a mutation rate between 1 and 2
 
         if self.scored_list and len(self.scored_list) == len(self.actions):
-            scores = [move['score'] for move in self.scored_list]
+            scores = [move['score'] for move in self.scored_list if move is not None]
             total_score = sum(scores)
             if total_score > 0:
                 weights = [score / total_score for score in scores]
@@ -158,6 +166,28 @@ class Actor:
             new_actions.append(chosen_action)
 
         self.actions = new_actions
-        #print(f"Actor {self.ide} has mutated")
     
+    
+
+    def score_move(self, move, extra_score=0):
+        self.move_stack
+
+        current_move_stats = self.move_stack[move] 
+
+        current_move_stats = self.move_stack[move]
+        if current_move_stats['move_success']:
+            self.current_move_score += 1
+        if self.dead:
+            self.current_move_score = 0
+            scored_move = { 
+                'move_num': move,
+                'score': self.current_move_score
+            }   
+            return scored_move  
+        
+        scored_move = { 
+            'move_num': move,
+            'score': self.current_move_score + int(extra_score)
+          }   
+        return scored_move
     

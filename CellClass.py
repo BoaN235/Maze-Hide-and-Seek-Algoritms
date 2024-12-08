@@ -38,14 +38,29 @@ class Cell:
         self.bottom = None
         self.left = None
         self.food = 0
+        self.current_view = None
     def draw_current_cell(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
         pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
 
     def draw(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
-        if self.visited:
+        
+        if self.current_view == 'food':
             pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
+            if self.food == 0:
+                pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x, y, self.tile_size, self.tile_size))
+            if self.food == 1:
+                pygame.draw.rect(screen, pygame.Color(100, 100, 0), (x, y, self.tile_size, self.tile_size))
+            if self.food == 2:
+                pygame.draw.rect(screen, pygame.Color(50, 150, 0), (x, y, self.tile_size, self.tile_size))
+            if self.food == 3:
+                pygame.draw.rect(screen, pygame.Color(0, 200, 0), (x, y, self.tile_size, self.tile_size))
+            if self.food == 4:
+                pygame.draw.rect(screen, pygame.Color(0, 255, 0), (x, y, self.tile_size, self.tile_size))
+        elif self.visited:
+            pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
+        
         if (hasattr(self.sim_state, 'Actors') and  self.sim_state.Actors != None):
             for a in self.sim_state.Actors:
                 if not a.dead:

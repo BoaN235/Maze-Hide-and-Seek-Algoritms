@@ -42,6 +42,7 @@ class SimState:
         self.time = time.time()
         self.time_in_ms = self.time * 1000
         self.save_every = 10
+        self.food_list = []
 
 
     def load_walls(self):
@@ -103,6 +104,7 @@ class SimState:
         
         self.grid_cells = [Cell.from_dict(cell_data) for cell_data in state['grid_cells']]
         self.Actors = [Actor.from_dict(actor_data) for actor_data in state['actors']]
+
         pass
     def save(self):
         # Save the current state
@@ -212,6 +214,10 @@ class SimState:
 
     def reset_generation(self):
         # Reset the generation
+        for i, cell in enumerate(self.grid_cells):
+            cell.food = self.food_list[i]
+
+        
         self.end_time = time.time()
         self.time = self.end_time - self.start_time
         
@@ -238,11 +244,12 @@ class SimState:
     def settings(self):
         self.setting = not self.setting
 
-    def draw_settings_screen(self, screen, settings_bar, font, slider, input_box):
+    def draw_settings_screen(self, screen, settings_bar, font, slider, input_box, view_button):
         if self.setting:
             settings_bar.draw_box()
             slider.draw_slider()
             input_box.draw_input_box()
+            view_button.draw_button()
 
     def generate_sim(self):
         # Game loop
@@ -258,8 +265,7 @@ class SimState:
 
         sc.fill(pygame.Color(50, 50, 50))
         
-        for cell in self.grid_cells:
-            cell.food = random.randint(0, 4)
+
 
         # Initialize the grid
         self.grid_cells = [Cell(col, row, self) for row in range(self.rows) for col in range(self.cols)]
@@ -310,6 +316,16 @@ class SimState:
             pygame.display.flip()
             clock.tick(1000)  # Adjust the tick rate for smoother gameplay
 
+    def view(self):
+        if self.grid_cells[0].current_view == 'food':
+            for cell in self.grid_cells:
+                cell.current_view = None
+        else:
+            for cell in self.grid_cells:
+                cell.current_view = 'food'
+        print('View button clicked')
+
+
     def start_sim(self):
         self.create_grid()
         self.create_actors()
@@ -317,7 +333,12 @@ class SimState:
         RES = self.WIDTH, self.HEIGHT
         FONT_SIZE = 24
         
+        for cell in self.grid_cells:
+            food = random.randint(1, 4)
+            self.food_list.append(food)
+            cell.food = food
 
+        
         pygame.init()
         sc = pygame.display.set_mode(RES)
         font = pygame.font.Font(None, FONT_SIZE)
@@ -330,6 +351,10 @@ class SimState:
         # Create settings button
         settings_button_rect = pygame.Rect(10, 10, 180, 40)
         settings_button = Button(sc, (0, 0, 255), "Settings", settings_button_rect, font, self.settings)
+
+        view_button_rect = pygame.Rect(10, 160, 180, 40)
+        view_button = Button(sc, (0, 0, 255), "View", view_button_rect, font, self.view)
+
 
         # Create slider for speed control
         slider = Slider(sc, (10, 60), 180, 20, 1, 2000, self.speed)
@@ -366,7 +391,7 @@ class SimState:
             settings_button.draw_button()
 
             # Draw the settings bar and its elements
-            self.draw_settings_screen(sc, settings_bar, font, slider, input_box)
+            self.draw_settings_screen(sc, settings_bar, font, slider, input_box, view_button)
 
             
             
@@ -376,6 +401,7 @@ class SimState:
                     pygame.quit()
                     exit()
                 settings_button.handle_event(event)
+                view_button.handle_event(event)
                 self.speed = int(input_box.handle_event(event))
 
 

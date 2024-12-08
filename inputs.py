@@ -3,7 +3,6 @@ import pygame
 class Button:
     def __init__(self, screen, button_color, button_text, button_rect, font, callback):
         self.screen = screen
-        self.screen_rect = screen.get_rect()
         self.button_color = button_color
         self.button_text = button_text
         self.button_rect = button_rect
@@ -14,7 +13,7 @@ class Button:
         pygame.draw.rect(self.screen, self.button_color, self.button_rect)
         text_surface = self.font.render(self.button_text, True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=self.button_rect.center)
-        self.screen.blit(text_surface, text_rect)  # noqa
+        self.screen.blit(text_surface, text_rect)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:  # noqa
@@ -30,6 +29,9 @@ class Button:
                     setting = False
                     return setting
                 if self.button_text == "Start":
+
+                    pass
+                if self.button_text == "View":
                     pass
 
 class InputBox:
