@@ -17,7 +17,7 @@ class PredActor(Actor):
         self.start_hunger = 0
         self.start_food = 10
         self.min_hunger = self.start_hunger
-        self.food = 40
+        self.food = self.start_food
         self.turns_without_food = 0
         self.MaxTurnsWithoutFood = 10
 
