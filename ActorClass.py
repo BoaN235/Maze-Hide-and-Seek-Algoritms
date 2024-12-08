@@ -19,6 +19,7 @@ class Actor:
         self.current_move_score = 0
 
 
+
         self.spawn()
         self.moves = 0
         self.actions = []
@@ -92,6 +93,8 @@ class Actor:
         
     def kill(self):
         self.dead = True  # Set dead attribute to True
+        if self.sim_state.preys < 0:
+            self.sim_state.preys = 0
 
         
 

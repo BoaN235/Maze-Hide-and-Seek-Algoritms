@@ -17,6 +17,9 @@ class PredActor(Actor):
 
 
 
+    def kill(self):
+        self.sim_state.preds -= 1
+        Actor.kill(self)
 
 
     def reset(self):

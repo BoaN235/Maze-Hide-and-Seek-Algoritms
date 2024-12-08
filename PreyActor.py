@@ -11,6 +11,9 @@ class PreyActor(Actor):
         self.dead = self.dead
   
         
+    def kill(self):
+        self.sim_state.preys -= 1
+        Actor.kill(self)
 
     def score_move(self, move):
         self.move_stack

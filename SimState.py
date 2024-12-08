@@ -11,6 +11,7 @@ import random
 from openpyxl import Workbook , load_workbook
 import time
 from Notification import Email
+import os
 
 
 class SimState:
@@ -25,10 +26,12 @@ class SimState:
         self.killed_actors = []
         self.setting = False
         self.speed = 100
+        self.max_preds = 20
+        self.max_preys = 100  
         self.preds = 20
         self.preys = 100       
         self.Actors = []
-        self.max_generations = 10
+        self.max_generations = 10001
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -38,6 +41,7 @@ class SimState:
         self.end_time = time.time()
         self.time = time.time()
         self.time_in_ms = self.time * 1000
+        self.save_every = 10
 
 
     def load_walls(self):
@@ -119,15 +123,37 @@ class SimState:
 
     def save_gen_stats(self):
         # Save the current state
-        for x in self.Actors:
-            if x.dead:
-                self.pred_score += 1
+        
+        save = []
+        if self.generation % self.save_every == 0:
+            for x in self.Actors:
+                if x.dead:
+                    self.pred_score += 1
+            for a in self.Actors:
+                save.append(a.actions)
+            
+        save = {"generation": self.generation}  # Example data to save
+        directory = "data/Replays"
+        filename = f"{directory}/replay_{self.generation}.json"
+
+        # Ensure the directory exists
+        os.makedirs(directory, exist_ok=True)
+
+        try:
+            with open(filename, 'w') as file:
+                json.dump([save], file, indent=4)
+            print(f"Saved simulation state to {filename}")
+        except FileNotFoundError:
+            print(f"File not found: {filename}")
 
 
-        if self.pred_score < self.preys:
+        if self.preys < 0:
+            self.preys = 0
+        if self.pred_score <= self.preys:
             wins_data = "prey wins"
-        if self.pred_score > self.preys:
+        elif self.pred_score >= self.preys:
             wins_data = "pred wins"
+
 
         self.sheet["A" + str(self.current_row)] = self.generation
         self.sheet["B" + str(self.current_row)] = wins_data
@@ -137,7 +163,15 @@ class SimState:
 
         self.current_row += 1
 
+        self.preds = self.max_preds
+        self.preys = self.max_preys
+
         self.workbook.save(self.path)
+
+    def replay(self):
+        current_replay = 1
+
+        pass
 
     def create_workbook(self):
         workbook = Workbook()
@@ -152,15 +186,18 @@ class SimState:
         sheet["B1"] = headers[1]
         sheet["C1"] = headers[2]
         sheet["D1"] = headers[3]
+        sheet["E1"] = headers[4]
         sheet.title = "Wins"
         self.workbook.save(self.path)
         return sheet
 
     def end_sim(self):
+        email = Email()
+        email.send_email()
         self.running = False
         self.start_review()
-        Email.send_email()
-        pass
+
+
 
     
 
@@ -186,7 +223,8 @@ class SimState:
         for x in self.Actors: # Respawn all dead actors
             x.reset()
         self.start_time = time.time()
-
+        self.preds = self.max_preds
+        self.preys = self.max_preys   
         pass
     def settings(self):
         self.setting = not self.setting
@@ -346,14 +384,15 @@ class SimState:
         clock = pygame.time.Clock()
         
         texts = [Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2 - 100), "Finished", titlefont, (255, 255, 255)), Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2), "Please look at the exel spreadsheet", font, (255, 255, 255)), Text(sc,  (self.WIDTH // 2, self.HEIGHT // 2 + 100), "Please do not close this tab", font, (255, 0, 0))]
-
+        buttons = [Button(sc, (0, 0, 255), "Next", pygame.Rect(self.WIDTH // 2 - 100, self.HEIGHT // 2 + 200, 200, 50), font, self.replay)]#, Button(sc, (0, 0, 255), "Back", pygame.Rect(self.WIDTH // 2 - 100, self.HEIGHT // 2 + 300, 200, 50), self.replay)
         while True:
             #sc.fill((30, 30, 30))
             sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) try it I DARE YOU
             for x in texts:
                 x.draw_text()
-
+            for x in buttons:
+                x.draw_button()
             
             # Handle events
             for event in pygame.event.get():
