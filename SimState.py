@@ -29,9 +29,9 @@ class SimState:
         self.max_preds = 20
         self.max_preys = 100  
         self.preds = 20
-        self.preys = 50     
+        self.preys = 100     
         self.Actors = []
-        self.max_generations = 11
+        self.max_generations = 10001
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -452,3 +452,36 @@ class SimState:
 
             pygame.display.flip()
             clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay  
+    
+    def Replay_sim(self):
+        RES = self.WIDTH, self.HEIGHT
+        FONT_SIZE = 34
+        
+
+
+        pygame.init()
+        sc = pygame.display.set_mode(RES)
+        font = pygame.font.Font(None, FONT_SIZE)
+        titlefont = pygame.font.Font(None, 68)
+        clock = pygame.time.Clock()
+
+        buttons = [Button(sc, (0, 0, 255), "Next", pygame.Rect(self.WIDTH // 2 - 100, self.HEIGHT // 2 + 200, 200, 50), font, self.replay)]#, Button(sc, (0, 0, 255), "Back", pygame.Rect(self.WIDTH // 2 - 100, self.HEIGHT // 2 + 300, 200, 50), self.replay)
+        while True:
+            #sc.fill((30, 30, 30))
+            sc.fill((0, 0, 0)) #cool mode
+            #sc.fill((255, 255, 255)) try it I DARE YOU
+            #for x in texts:
+                #x.draw_text()
+            for x in buttons:
+                x.draw_button()
+            
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+
+            pygame.display.flip()
+            clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay  
+    
