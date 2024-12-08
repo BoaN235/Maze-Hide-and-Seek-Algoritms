@@ -138,13 +138,14 @@ class Cell:
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
 
-    def to_dict(self):
-        return {
+    def to_list(self):
+        cell = {
             'x': self.x,
             'y': self.y,
             'walls': self.walls,
             'visited': self.visited
         }
+        return cell
 
     def from_dict(data, sim_state):
         cell = Cell(data['x'], data['y'], sim_state)

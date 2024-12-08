@@ -25,13 +25,13 @@ class SimState:
         self.generation_actors = []
         self.killed_actors = []
         self.setting = False
-        self.speed = 10
+        self.speed = 100
         self.max_preds = 20
         self.max_preys = 100  
         self.preds = 20
         self.preys = 50     
         self.Actors = []
-        self.max_generations = 100001
+        self.max_generations = 11
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -44,6 +44,7 @@ class SimState:
         self.save_every = 10
         self.food_list = []
         self.action_step = 0
+        self.state = []
 
 
     def load_walls(self):
@@ -107,27 +108,27 @@ class SimState:
         self.Actors = [Actor.from_dict(actor_data) for actor_data in state['actors']]
 
         pass
+
     def save(self):
         # Save the current state
-        state = {
-            'max_actions': self.MaxActions,
-            'width': self.WIDTH,
-            'height': self.HEIGHT,
-            'tile': self.TILE,
-            'cols': self.cols,
-            'rows': self.rows,
-            'generation': self.generation,
-            'grid_cells': [cell.to_dict() for cell in self.grid_cells],
-            'actors': [actor.to_dict() for actor in self.Actors],
-            'food': [cell.food for cell in self.grid_cells]
-        }
+        cells = [cell.to_list() for cell in self.grid_cells]
+        Actors = [actor.to_list() for actor in self.Actors]
+        states = [
+            self.MaxActions,
+            self.WIDTH,
+            self.HEIGHT,
+            self.TILE,
+            self.cols,
+            self.rows,
+            self.generation,
+            cells,
+            Actors,
+            [cell.food for cell in self.grid_cells]
+        ]
+        self.state.append(states)
 
-        # Compress the state data
-        compressed_state = json.dumps(state).encode('utf-8')
-        compressed_state = zlib.compress(compressed_state)
 
-        with open("state.json", 'a') as f:
-            f.write(str(compressed_state))
+
 
 
     def save_gen_stats(self):
@@ -170,7 +171,7 @@ class SimState:
                     starved_prey += 1
                 if not a.dead:
                     preys += 1
-                
+
 
         self.sheet["A" + str(self.current_row)] = self.generation
         self.sheet["B" + str(self.current_row)] = "wins_data"
@@ -215,7 +216,8 @@ class SimState:
         email.send_email()
         self.running = False
         self.start_review()
-
+        with open("state.json", 'wb') as f:
+            f.write(str(self.state))
 
 
     

@@ -110,12 +110,14 @@ class Actor:
         self.current_cell = self.spawn_cell = self.sim_state.grid_cells[self.spawn_index]
         self.moves = 0
     
-    def to_dict(self):
-        return {
+    def to_list(self):
+        cell = {
             'color': self.color,
             'spawn_index': self.sim_state.grid_cells.index(self.spawn_cell),
             'moves': self.moves
         }
+        return cell
+
     
     def from_dict(data):
         actor = Actor(None, 0)

@@ -23,7 +23,13 @@
             "type": "debugpy",
             "request": "launch",
             "program": "LastResults.py"
-        }
+        },
+        {
+            "name": "Python Debugger: Email",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "Notification.py"
+        },
     
     ]
 }
