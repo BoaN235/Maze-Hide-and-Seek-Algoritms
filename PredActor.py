@@ -14,33 +14,34 @@ class PredActor(Actor):
         self.sim_state = sim_state
         self.killed = False
         self.dead = self.dead
-        self.start_hunger = 20
-        self.start_food = 35
+        self.start_hunger = 0
+        self.start_food = 10
         self.min_hunger = self.start_hunger
-        self.food = 35
+        self.food = 40
         self.turns_without_food = 0
-        self.sim_state.MaxTurnsWithoutFood = 10
+        self.MaxTurnsWithoutFood = 10
 
 
-    def kill(self, cause_of_death:CauseOfDeath=None):
 
-        Actor.kill(self, cause_of_death)
 
 
 
 
     def step(self):
+        self.last_food = self.food
         for actor in self.sim_state.Actors:
             if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PreyActor):
                 self.food += actor.food 
                 self.killed = True
                 actor.kill(CauseOfDeath.KILLED)
-        
+
         Actor.step(self)
+        self.food_difference = self.last_food - self.food
+        self.scoring_list_gen()
 
     
     def generate_actions(self):
-        for i in range(1, self.sim_state.MaxActions):
+        for i in range(0, self.sim_state.MaxActions + 1):
             random_actions = random.randint(0, 3)        
             if random_actions == 0:
                 self.actions.append("left")

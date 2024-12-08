@@ -36,18 +36,11 @@ class Actor:
 
 
 
-    def preform_action(self):
-        if not self.dead:
-            if self.moves < self.sim_state.MaxActions:
-                self.step()
-                self.moves += 1
-            elif self.moves == self.sim_state.MaxActions:
-                self.spawn()
-
     def reset(self):
         if self.dead:
             self.genetic_mutations()
             self.dead = False
+            self.cause_of_death = None
         self.food = self.start_food
         self.min_hunger = self.start_hunger
 
@@ -55,15 +48,14 @@ class Actor:
         self.move_stack = []
         self.last_cell = None
         self.spawn()
-        self.moves = 0
+
         # self.generate_actions()
 
     def step(self):
         if self.dead:
             return
-        last_food = self.food
         if self.food <= self.min_hunger:
-            if self.turns_without_food >= self.sim_state.MaxTurnsWithoutFood:
+            if self.turns_without_food >= self.MaxTurnsWithoutFood:
                 self.kill(CauseOfDeath.STARVATION)
                 self.turns_without_food = 0
             else:
@@ -73,45 +65,37 @@ class Actor:
         if self.current_cell:
             self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
-            movable_cells = self.current_cell.check_neighboring_options(self.sim_state.grid_cells)
-            if self.actions[self.moves-1] == 'top':
-                for x in movable_cells:
-                    if x == self.current_cell.top:
-                        self.current_cell = self.current_cell.top
-                        break
-            if self.actions[self.moves-1] == 'left':
-                for x in movable_cells:
-                    if x == self.current_cell.left:
-                        self.current_cell = self.current_cell.left
-                        break
-            if self.actions[self.moves-1] == 'right':
-                for x in movable_cells:
-                    if x == self.current_cell.right:
-                        self.current_cell = self.current_cell.right
-                        break
-            if self.actions[self.moves-1] == 'bottom':
-                for x in movable_cells:
-                    if x == self.current_cell.bottom:
-                        self.current_cell = self.current_cell.bottom
-                        break
-            if not self.last_cell == self.current_cell:
-                self.food -= 0.1
-                self.min_hunger += 1
+            self.movable_cells = {}
+            if self.actions[self.sim_state.action_step] == 'top' and self.current_cell.can_move_top():
+                self.current_cell = self.current_cell.top
             
-            food_difference = last_food - self.food
+            if self.actions[self.sim_state.action_step] == 'left' and self.current_cell.can_move_left():
+                self.current_cell = self.current_cell.left
+            
+            if self.actions[self.sim_state.action_step] == 'right' and self.current_cell.can_move_right():
+                self.current_cell = self.current_cell.right
 
-            self.move_stack.append({
-                'action': self.actions[self.moves-1],
-                'current_cell': self.current_cell,
-                'last_cell': self.last_cell,
-                'move_success': self.current_cell != self.last_cell,
-                'neighboring_options': movable_cells,
-                'food': food_difference,
+            if self.actions[self.sim_state.action_step] == 'bottom' and self.current_cell.can_move_bottom():
+                self.current_cell = self.current_cell.bottom
+
+            if not self.last_cell == self.current_cell:
+                self.food -= 0.9
+            
+            else:
+                self.spawn()
+
+    def scoring_list_gen(self):    
+        self.move_stack.append({
+            'action': self.actions[self.sim_state.action_step],
+            'current_cell': self.current_cell,
+            'last_cell': self.last_cell,
+            'move_success': self.current_cell != self.last_cell,
+            'neighboring_options': self.movable_cells,
+            'food': self.food_difference,
             })
-            self.scored_list.append(self.score_move(self.moves-1))
+        self.scored_list.append(self.score_move(self.sim_state.action_step))
 
-        else:
-            self.spawn()
+
         
     def kill(self, cause_of_death:CauseOfDeath=None):
         self.dead = True  # Set dead attribute to True

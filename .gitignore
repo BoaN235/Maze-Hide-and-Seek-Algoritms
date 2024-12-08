@@ -6,6 +6,8 @@ Notification.py
 
 data/Replays/
 
+__pycache__/
+config.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,6 +1,6 @@
 import pygame
 from CellClass import Cell
-from ActorClass import Actor
+from ActorClass import Actor, CauseOfDeath
 from PredActor import PredActor
 from PreyActor import PreyActor
 from inputs import Button, InputBox, Text, Slider, TransparentBox
@@ -12,7 +12,7 @@ from openpyxl import Workbook , load_workbook
 import time
 from Notification import Email
 import os
-
+import zlib
 
 class SimState:
     def __init__(self):
@@ -25,13 +25,13 @@ class SimState:
         self.generation_actors = []
         self.killed_actors = []
         self.setting = False
-        self.speed = 100
+        self.speed = 10
         self.max_preds = 20
         self.max_preys = 100  
         self.preds = 20
-        self.preys = 100       
+        self.preys = 50     
         self.Actors = []
-        self.max_generations = 10001
+        self.max_generations = 100001
         self.running = True
         self.path = "data/simdata.xlsx"
         self.workbook = self.create_workbook()
@@ -43,6 +43,7 @@ class SimState:
         self.time_in_ms = self.time * 1000
         self.save_every = 10
         self.food_list = []
+        self.action_step = 0
 
 
     def load_walls(self):
@@ -117,11 +118,17 @@ class SimState:
             'rows': self.rows,
             'generation': self.generation,
             'grid_cells': [cell.to_dict() for cell in self.grid_cells],
-            'actors': [actor.to_dict() for actor in self.Actors]
+            'actors': [actor.to_dict() for actor in self.Actors],
+            'food': [cell.food for cell in self.grid_cells]
         }
+
+        # Compress the state data
+        compressed_state = json.dumps(state).encode('utf-8')
+        compressed_state = zlib.compress(compressed_state)
+
         with open("state.json", 'a') as f:
-            json.dump(state, f, indent=4)
-        pass
+            f.write(str(compressed_state))
+
 
     def save_gen_stats(self):
         # Save the current state
@@ -153,14 +160,15 @@ class SimState:
         starved_pred = 0
 
         for a in self.Actors:
-            if not a.dead:
-                if isinstance(a, PredActor):
-                    if a.cause_of_death == "starved":
-                        starved_pred += 1
+            if isinstance(a, PredActor):
+                if a.cause_of_death == CauseOfDeath.STARVATION:
+                    starved_pred += 1
+                if not a.dead:
                     preds += 1
-                elif isinstance(a, PreyActor):
-                    if a.cause_of_death == "starved":
-                        starved_prey += 1
+            elif isinstance(a, PreyActor):
+                if a.cause_of_death == CauseOfDeath.STARVATION:
+                    starved_prey += 1
+                if not a.dead:
                     preys += 1
                 
 
@@ -218,6 +226,7 @@ class SimState:
             cell.food = self.food_list[i]
 
         
+        self.action_step = 0
         self.end_time = time.time()
         self.time = self.end_time - self.start_time
         
@@ -225,7 +234,7 @@ class SimState:
         self.time_in_ms = self.time * 1000
         # Convert time to seconds
         time_in_s = self.time
-        
+        self.save()
         self.save_gen_stats()
 
 
@@ -334,7 +343,7 @@ class SimState:
         FONT_SIZE = 24
         
         for cell in self.grid_cells:
-            food = random.randint(1, 4)
+            food = random.randint(1, 10)
             self.food_list.append(food)
             cell.food = food
 
@@ -373,15 +382,15 @@ class SimState:
             #sc.fill((30, 30, 30))
             sc.fill((0, 0, 0)) #cool mode
             #sc.fill((255, 255, 255)) #try it I DARE YOU
-            
-            for a in self.Actors:
-                a.preform_action()
-            if self.Actors[self.preds + self.preys - 1].moves >= self.MaxActions:
+
+
+
+            if self.action_step >= self.MaxActions:
                 self.reset_generation()
-
                 self.Actors = self.generation_actors
-
-
+            for a in self.Actors:
+                a.step()
+            self.action_step += 1
 
 
             # Draw all cells

@@ -39,25 +39,36 @@ class Cell:
         self.left = None
         self.food = 0
         self.current_view = None
+    def can_move_top(self):
+        return self.top is not None and not self.walls['top']
+    def can_move_right(self):
+        return self.right is not None and not self.walls['right']
+    def can_move_bottom(self):
+        return self.bottom is not None and not self.walls['bottom']
+    def can_move_left(self):
+        return self.left is not None and not self.walls['left']
+
     def draw_current_cell(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
         pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x + 2, y + 2, self.tile_size - 2, self.tile_size - 2))
+
+    def generate_gradient_colors(self, step):
+        if step <= 1:
+            return pygame.Color(255, 0, 0)
+        r = int((255 / (step - 1)))
+        g = int(255 - (255 / (step - 1)))
+        b = 0
+        
+        
+        return pygame.Color(r, g, b)
 
     def draw(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
         
         if self.current_view == 'food':
-            pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
-            if self.food == 0:
-                pygame.draw.rect(screen, pygame.Color(255, 0, 0), (x, y, self.tile_size, self.tile_size))
-            if self.food == 1:
-                pygame.draw.rect(screen, pygame.Color(100, 100, 0), (x, y, self.tile_size, self.tile_size))
-            if self.food == 2:
-                pygame.draw.rect(screen, pygame.Color(50, 150, 0), (x, y, self.tile_size, self.tile_size))
-            if self.food == 3:
-                pygame.draw.rect(screen, pygame.Color(0, 200, 0), (x, y, self.tile_size, self.tile_size))
-            if self.food == 4:
-                pygame.draw.rect(screen, pygame.Color(0, 255, 0), (x, y, self.tile_size, self.tile_size))
+            pygame.draw.rect(screen, self.generate_gradient_colors(self.food), (x, y, self.tile_size, self.tile_size))
+
+
         elif self.visited:
             pygame.draw.rect(screen, pygame.Color(0, 0, 0), (x, y, self.tile_size, self.tile_size))
         

@@ -9,21 +9,20 @@ class PreyActor(Actor):
         self.spawn_color = (0, 155, 0)
         self.id = ide
         self.dead = self.dead
-        self.start_hunger = 30
-        self.start_food = 40
+        self.start_hunger = 0
+        self.start_food = 5
         self.min_hunger = self.start_hunger
         self.food = self.start_food
         self.turns_without_food = 0
-        self.sim_state.MaxTurnsWithoutFood = 6
+        self.MaxTurnsWithoutFood = 6
 
-    def kill(self, cause_of_death:CauseOfDeath=None):
-        Actor.kill(self, cause_of_death)
+
 
 
     #     Actor.reset(self)
 
     def generate_actions(self):
-        for i in range(1, self.sim_state.MaxActions):
+        for i in range(0, self.sim_state.MaxActions + 1):
             random_actions = random.randint(0, 3)        
             if random_actions == 0:
                 self.actions.append("left")
@@ -35,13 +34,13 @@ class PreyActor(Actor):
                 self.actions.append("bottom")
     
     def step(self):
+        self.last_food = self.food
+        Actor.step(self)
         if self.current_cell.food > 0:
-
             self.current_cell.food -= 1
             self.food += 1
-
-        Actor.step(self)
-    
+        self.food_difference = self.last_food - self.food
+        self.scoring_list_gen()
 
     def score_move(self, move, extra_score=0):
         current_move_stats = self.move_stack[move]
