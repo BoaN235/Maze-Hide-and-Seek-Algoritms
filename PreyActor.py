@@ -40,10 +40,3 @@ class PreyActor(Actor):
             self.current_cell.food -= 1
             self.food += 1
         self.food_difference = self.last_food - self.food
-        self.scoring_list_gen()
-
-    def score_move(self, move, extra_score=0):
-        current_move_stats = self.move_stack[move]
-        extra_score = current_move_stats['food']/2 
-
-        Actor.score_move(self, move, extra_score)

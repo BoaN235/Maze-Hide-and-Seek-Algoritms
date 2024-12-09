@@ -37,7 +37,7 @@ class PredActor(Actor):
 
         Actor.step(self)
         self.food_difference = self.last_food - self.food
-        self.scoring_list_gen()
+
 
     
     def generate_actions(self):
@@ -52,6 +52,3 @@ class PredActor(Actor):
             if random_actions == 3:
                 self.actions.append("bottom")
 
-    def score_move(self, move):
-  
-        Actor.score_move(self, move)

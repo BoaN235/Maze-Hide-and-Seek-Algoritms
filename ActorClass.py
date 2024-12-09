@@ -84,16 +84,7 @@ class Actor:
             else:
                 self.spawn()
 
-    def scoring_list_gen(self):    
-        self.move_stack.append({
-            'action': self.actions[self.sim_state.action_step],
-            'current_cell': self.current_cell,
-            'last_cell': self.last_cell,
-            'move_success': self.current_cell != self.last_cell,
-            'neighboring_options': self.movable_cells,
-            'food': self.food_difference,
-            })
-        self.scored_list.append(self.score_move(self.sim_state.action_step))
+
 
 
         
@@ -129,51 +120,11 @@ class Actor:
     def genetic_mutations(self):
         chosen_mutation_rate = random.randint(0, 2)  # Randomly choose a mutation rate between 1 and 2
 
-        if self.scored_list and len(self.scored_list) == len(self.actions):
-            scores = [move['score'] for move in self.scored_list if move is not None]
-            total_score = sum(scores)
-            if total_score > 0:
-                weights = [score / total_score for score in scores]
-            else:
-                weights = [1 / len(self.actions)] * len(self.actions)  # Equal weights if total_score is 0
-        else:
-            weights = [1 / len(self.actions)] * len(self.actions)  # Equal weights if no scores or mismatch
-
-        # Select specific moves to change using weights
+        # Select specific moves to change without using weights
         for i in range(chosen_mutation_rate):
-            chosen_action_index = random.choices(range(len(self.actions)), weights)[0]
+            chosen_action_index = random.randint(0, len(self.actions) - 1)
             new_action = random.choice(["left", "right", "top", "bottom"])  # Randomly choose new action
             self.actions[chosen_action_index] = new_action
 
         # Regenerate the actions list randomly
         new_actions = []
-        for i in range(self.sim_state.MaxActions):
-            chosen_action = random.choice(self.actions)  # Randomly choose from the updated actions
-            new_actions.append(chosen_action)
-
-        self.actions = new_actions
-    
-    
-
-    def score_move(self, move, extra_score=0):
-        self.move_stack
-
-        current_move_stats = self.move_stack[move] 
-
-        current_move_stats = self.move_stack[move]
-        if current_move_stats['move_success']:
-            self.current_move_score += 1
-        if self.dead:
-            self.current_move_score = 0
-            scored_move = { 
-                'move_num': move,
-                'score': self.current_move_score
-            }   
-            return scored_move  
-        
-        scored_move = { 
-            'move_num': move,
-            'score': self.current_move_score + int(extra_score)
-          }   
-        return scored_move
-    
