@@ -484,4 +484,4 @@ class SimState:
 
             pygame.display.flip()
             clock.tick(self.speed)  # Adjust the tick rate for smoother gameplay  
-    
+    #this was a worth it change
