@@ -16,7 +16,7 @@ import zlib
 
 class SimState:
     def __init__(self):
-        self.MaxActions = 100
+        self.MaxActions = 50
         self.WIDTH, self.HEIGHT = 1202, 902
         self.TILE = 25
         self.cols, self.rows = self.WIDTH // self.TILE, self.HEIGHT // self.TILE        
