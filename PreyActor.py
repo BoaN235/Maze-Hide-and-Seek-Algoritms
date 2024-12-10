@@ -42,6 +42,29 @@ class PreyActor(Actor):
         self.find_best_move_to_target(closest_cell)
     #     Actor.reset(self)
 
+    def find_best_move_to_target(self, target):
+        moves = [self.current_cell.left, self.current_cell.right, self.current_cell.bottom, self.current_cell.top]
+        moves = [move for move in moves if move is not None]  # Remove None values
+
+        # Sort moves based on distance to target
+        moves.sort(key=lambda move: move.distance(target))
+
+        for cell in moves:
+            if cell == self.current_cell.left and self.current_cell.can_move_left():
+                self.current_cell = self.current_cell.left
+                break
+            if cell == self.current_cell.right and self.current_cell.can_move_right():
+                self.current_cell = self.current_cell.right
+                break
+            if cell == self.current_cell.top and self.current_cell.can_move_top():
+                self.current_cell = self.current_cell.top
+                break
+            if cell == self.current_cell.bottom and self.current_cell.can_move_bottom():
+                self.current_cell = self.current_cell.bottom
+                break
+
+
+
     def generate_actions(self):
         for i in range(0, self.sim_state.MaxActions + 1):
             random_actions = random.randint(0, 5)        

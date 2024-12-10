@@ -205,72 +205,39 @@ class Actor:
 
 
     def find_best_move_away_from_target(self, target):
-        left = self.current_cell.left
-        right = self.current_cell.right
-        bottom = self.current_cell.bottom
-        top = self.current_cell.top
-        moves = [left, right, bottom, top]
+        moves = [self.current_cell.left, self.current_cell.right, self.current_cell.bottom, self.current_cell.top]
         moves = [move for move in moves if move is not None]  # Remove None values
-        farthest_moves = []
+        moves.sort(key=lambda move: move.distance(target.current_cell), reverse=True)
 
-
-        while moves:
-            target_closest = None
-            for move in moves:
-                if target_closest is None or move.distance(target.current_cell) > target_closest.distance(target.current_cell):
-                    target_closest = move
-            if target_closest:
-                farthest_moves.append(target_closest)
-                moves.remove(target_closest)
-
-        farthest_moves.reverse()
-
-        for cell in farthest_moves:
+        for cell in moves:
             if cell == self.current_cell.left and self.current_cell.can_move_left():
                 self.current_cell = self.current_cell.left
-
+                break
             if cell == self.current_cell.right and self.current_cell.can_move_right():
                 self.current_cell = self.current_cell.right
-
+                break
             if cell == self.current_cell.top and self.current_cell.can_move_top():
                 self.current_cell = self.current_cell.top
-
+                break
             if cell == self.current_cell.bottom and self.current_cell.can_move_bottom():
                 self.current_cell = self.current_cell.bottom
+                break
 
-
-    
     def find_best_move_to_target(self, target):
-        left = self.current_cell.left
-        right = self.current_cell.right
-        bottom = self.current_cell.bottom
-        top = self.current_cell.top
-        moves = [left, right, bottom, top]
+        moves = [self.current_cell.left, self.current_cell.right, self.current_cell.bottom, self.current_cell.top]
         moves = [move for move in moves if move is not None]  # Remove None values
-        farthest_moves = []
+        moves.sort(key=lambda move: move.distance(target.current_cell))
 
-
-        while moves:
-            target_closest = None
-            for move in moves:
-                if target_closest is None or move.distance(target.current_cell) < target_closest.distance(target.current_cell):
-                    target_closest = move
-            if target_closest:
-                farthest_moves.append(target_closest)
-                moves.remove(target_closest)
-
-        farthest_moves.reverse()
-
-        for cell in farthest_moves:
+        for cell in moves:
             if cell == self.current_cell.left and self.current_cell.can_move_left():
                 self.current_cell = self.current_cell.left
-
+                break
             if cell == self.current_cell.right and self.current_cell.can_move_right():
                 self.current_cell = self.current_cell.right
-
+                break
             if cell == self.current_cell.top and self.current_cell.can_move_top():
                 self.current_cell = self.current_cell.top
-
+                break
             if cell == self.current_cell.bottom and self.current_cell.can_move_bottom():
                 self.current_cell = self.current_cell.bottom
-
+                break
