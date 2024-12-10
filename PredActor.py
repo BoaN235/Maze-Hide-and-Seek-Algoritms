@@ -25,13 +25,23 @@ class PredActor(Actor):
     def ActorType(self):
         return ActorType.PREDATOR
 
+    def search_for_food(self):
+        closest_actor = None
+        self.current_cell.check_neighbors(self.sim_state.grid_cells)
+        for actor in self.sim_state.Actors:
+            if actor.ActorType() == ActorType.PREDATOR:
+                if closest_actor is None:
+                    closest_actor = actor
+                elif self.current_cell.distance(actor.current_cell) < self.current_cell.distance(closest_actor.current_cell):
+                    closest_actor = actor
+        self.find_best_move_to_target(closest_actor)
 
 
 
     def step(self):
         self.last_food = self.food
         for actor in self.sim_state.Actors:
-            if actor.current_cell == self.current_cell and actor != self and isinstance(actor, PreyActor):
+            if actor.current_cell == self.current_cell and actor != self and actor.ActorType() == ActorType.PREY:
                 self.food += actor.food 
                 self.killed = True
                 actor.kill(CauseOfDeath.KILLED)

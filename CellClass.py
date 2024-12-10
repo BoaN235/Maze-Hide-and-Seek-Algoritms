@@ -39,14 +39,15 @@ class Cell:
         self.left = None
         self.food = 0
         self.current_view = None
+    
     def can_move_top(self):
-        return self.top is not None and not self.walls['top']
+        return self.top is not None and not self.walls['top'] and not self.top.walls['bottom']
     def can_move_right(self):
-        return self.right is not None and not self.walls['right']
+        return self.right is not None and not self.walls['right'] and not self.right.walls['left']
     def can_move_bottom(self):
-        return self.bottom is not None and not self.walls['bottom']
+        return self.bottom is not None and not self.walls['bottom'] and not self.bottom.walls['top']
     def can_move_left(self):
-        return self.left is not None and not self.walls['left']
+        return self.left is not None and not self.walls['left'] and not self.left.walls['right']
 
     def draw_current_cell(self, screen):
         x, y = self.x * self.tile_size, self.y * self.tile_size
@@ -137,6 +138,9 @@ class Cell:
     def save_gen(self, walls):
         for wall_name, wall_value in walls.items():
             self.walls[wall_name] = wall_value
+
+    def distance(self, other_cell):
+        return abs(self.x - other_cell.x) + abs(self.y - other_cell.y)
 
     def to_list(self):
         cell = {

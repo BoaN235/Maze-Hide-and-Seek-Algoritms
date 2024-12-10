@@ -22,13 +22,24 @@ class PreyActor(Actor):
 
     def sense_threat(self):
         closest_actor = None
+        self.current_cell.check_neighbors(self.sim_state.grid_cells)
         for actor in self.sim_state.Actors:
             if actor.ActorType() == ActorType.PREDATOR:
                 if closest_actor is None:
                     closest_actor = actor
                 elif self.current_cell.distance(actor.current_cell) < self.current_cell.distance(closest_actor.current_cell):
                     closest_actor = actor
+        self.find_best_move_away_from_target(closest_actor)
 
+    def search_for_food(self):
+        closest_cell = None
+        for cell in self.sim_state.grid_cells:
+            if cell.food > 0:
+                if closest_cell is None:
+                    closest_cell = cell
+                elif self.current_cell.distance(cell) < self.current_cell.distance(closest_cell) and cell.food > closest_cell.food:
+                    closest_cell = cell
+        self.find_best_move_to_target(closest_cell)
     #     Actor.reset(self)
 
     def generate_actions(self):
@@ -52,7 +63,7 @@ class PreyActor(Actor):
         if self.current_cell.food > 0:
             self.current_cell.food -= 1
             self.food += 1
-        if self.actions[self.sim_state.action_step] == "sense_t":
+        if self.actions[self.sim_state.action_step] == Moves.SENSE_T:
             self.sense_threat()
         else:
             Actor.step(self)

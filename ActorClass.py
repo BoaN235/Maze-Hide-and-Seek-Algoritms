@@ -57,12 +57,10 @@ class Actor:
             self.cause_of_death = None
         self.food = self.start_food
         self.min_hunger = self.start_hunger
-
         self.current_cell = None
         self.move_stack = []
         self.last_cell = None
         self.spawn()
-
         # self.generate_actions()
 
     def search_for_food(self):
@@ -86,7 +84,6 @@ class Actor:
 
             self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
-            self.movable_cells = {}
             if self.actions[self.sim_state.action_step] == Moves.TOP and self.current_cell.can_move_top():
                 self.current_cell = self.current_cell.top
             
@@ -98,6 +95,9 @@ class Actor:
 
             if self.actions[self.sim_state.action_step] == Moves.BOTTOM and self.current_cell.can_move_bottom():
                 self.current_cell = self.current_cell.bottom
+
+            if self.actions[self.sim_state.action_step] == Moves.SENSE_F:
+                self.search_for_food()
 
 
             if not self.last_cell == self.current_cell:
@@ -112,7 +112,6 @@ class Actor:
             'current_cell': self.current_cell,
             'last_cell': self.last_cell,
             'move_success': self.current_cell != self.last_cell,
-            'neighboring_options': self.movable_cells,
             'food': self.food_difference,
             })
         self.scored_list.append(self.score_move(self.sim_state.action_step))
@@ -199,3 +198,79 @@ class Actor:
           }   
         return scored_move
     
+
+
+
+
+
+
+    def find_best_move_away_from_target(self, target):
+        left = self.current_cell.left
+        right = self.current_cell.right
+        bottom = self.current_cell.bottom
+        top = self.current_cell.top
+        moves = [left, right, bottom, top]
+        moves = [move for move in moves if move is not None]  # Remove None values
+        farthest_moves = []
+
+
+        while moves:
+            target_closest = None
+            for move in moves:
+                if target_closest is None or move.distance(target.current_cell) > target_closest.distance(target.current_cell):
+                    target_closest = move
+            if target_closest:
+                farthest_moves.append(target_closest)
+                moves.remove(target_closest)
+
+        farthest_moves.reverse()
+
+        for cell in farthest_moves:
+            if cell == self.current_cell.left and self.current_cell.can_move_left():
+                self.current_cell = self.current_cell.left
+
+            if cell == self.current_cell.right and self.current_cell.can_move_right():
+                self.current_cell = self.current_cell.right
+
+            if cell == self.current_cell.top and self.current_cell.can_move_top():
+                self.current_cell = self.current_cell.top
+
+            if cell == self.current_cell.bottom and self.current_cell.can_move_bottom():
+                self.current_cell = self.current_cell.bottom
+
+
+    
+    def find_best_move_to_target(self, target):
+        left = self.current_cell.left
+        right = self.current_cell.right
+        bottom = self.current_cell.bottom
+        top = self.current_cell.top
+        moves = [left, right, bottom, top]
+        moves = [move for move in moves if move is not None]  # Remove None values
+        farthest_moves = []
+
+
+        while moves:
+            target_closest = None
+            for move in moves:
+                if target_closest is None or move.distance(target.current_cell) < target_closest.distance(target.current_cell):
+                    target_closest = move
+            if target_closest:
+                farthest_moves.append(target_closest)
+                moves.remove(target_closest)
+
+        farthest_moves.reverse()
+
+        for cell in farthest_moves:
+            if cell == self.current_cell.left and self.current_cell.can_move_left():
+                self.current_cell = self.current_cell.left
+
+            if cell == self.current_cell.right and self.current_cell.can_move_right():
+                self.current_cell = self.current_cell.right
+
+            if cell == self.current_cell.top and self.current_cell.can_move_top():
+                self.current_cell = self.current_cell.top
+
+            if cell == self.current_cell.bottom and self.current_cell.can_move_bottom():
+                self.current_cell = self.current_cell.bottom
+
