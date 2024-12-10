@@ -10,6 +10,18 @@ class CauseOfDeath(Enum):
     STARVATION = "starvation"
     KILLED = "killed"
 
+class ActorType(Enum):
+    PREDATOR = "predator"
+    PREY = "prey"
+
+class Moves(Enum):
+    LEFT = "left"
+    RIGHT = "right"
+    TOP = "top"
+    BOTTOM = "bottom"
+    SENSE_T = "sense_t"
+    SENSE_F = "sense_f"
+
 class Actor:
     def __init__(self, sim_state, spawn_index, ide):
         self.sim_state = sim_state  # Ensure sim_state is initialized first
@@ -35,6 +47,8 @@ class Actor:
         self.generate_actions()
 
 
+    def actor_type(self):
+        return None
 
     def reset(self):
         if self.dead:
@@ -51,6 +65,9 @@ class Actor:
 
         # self.generate_actions()
 
+    def search_for_food(self):
+        pass
+    
     def step(self):
         if self.dead:
             return
@@ -63,20 +80,25 @@ class Actor:
 
         
         if self.current_cell:
+            
+            if self.actions[self.sim_state.action_step] == 'sense_f':
+                self.search_for_food()
+
             self.last_cell = self.current_cell      
             self.current_cell.check_neighbors(self.sim_state.grid_cells)
             self.movable_cells = {}
-            if self.actions[self.sim_state.action_step] == 'top' and self.current_cell.can_move_top():
+            if self.actions[self.sim_state.action_step] == Moves.TOP and self.current_cell.can_move_top():
                 self.current_cell = self.current_cell.top
             
-            if self.actions[self.sim_state.action_step] == 'left' and self.current_cell.can_move_left():
+            if self.actions[self.sim_state.action_step] == Moves.LEFT and self.current_cell.can_move_left():
                 self.current_cell = self.current_cell.left
             
-            if self.actions[self.sim_state.action_step] == 'right' and self.current_cell.can_move_right():
+            if self.actions[self.sim_state.action_step] == Moves.RIGHT and self.current_cell.can_move_right():
                 self.current_cell = self.current_cell.right
 
-            if self.actions[self.sim_state.action_step] == 'bottom' and self.current_cell.can_move_bottom():
+            if self.actions[self.sim_state.action_step] == Moves.BOTTOM and self.current_cell.can_move_bottom():
                 self.current_cell = self.current_cell.bottom
+
 
             if not self.last_cell == self.current_cell:
                 self.food -= 0.9
@@ -142,7 +164,7 @@ class Actor:
         # Select specific moves to change using weights
         for i in range(chosen_mutation_rate):
             chosen_action_index = random.choices(range(len(self.actions)), weights)[0]
-            new_action = random.choice(["left", "right", "top", "bottom"])  # Randomly choose new action
+            new_action = random.choice([Moves.LEFT, Moves.RIGHT, Moves.TOP, Moves.BOTTOM])  # Randomly choose new action
             self.actions[chosen_action_index] = new_action
 
         # Regenerate the actions list randomly

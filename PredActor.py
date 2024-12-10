@@ -1,4 +1,4 @@
-from ActorClass import Actor, CauseOfDeath
+from ActorClass import Actor, CauseOfDeath, ActorType, Moves
 from PreyActor import PreyActor
 import random
 from enum import Enum
@@ -22,7 +22,8 @@ class PredActor(Actor):
         self.MaxTurnsWithoutFood = 10
 
 
-
+    def ActorType(self):
+        return ActorType.PREDATOR
 
 
 
@@ -37,21 +38,22 @@ class PredActor(Actor):
 
         Actor.step(self)
         self.food_difference = self.last_food - self.food
-        self.scoring_list_gen()
+
 
     
     def generate_actions(self):
         for i in range(0, self.sim_state.MaxActions + 1):
             random_actions = random.randint(0, 3)        
             if random_actions == 0:
-                self.actions.append("left")
+                self.actions.append(Moves.LEFT)
             if random_actions == 1:
-                self.actions.append("right")
+                self.actions.append(Moves.RIGHT)
             if random_actions == 2:
-                self.actions.append("top")
+                self.actions.append(Moves.TOP)
             if random_actions == 3:
-                self.actions.append("bottom")
+                self.actions.append(Moves.BOTTOM)
+            if random_actions == 5:
+                self.actions.append(Moves.SENSE_F)
 
-    def score_move(self, move):
-  
-        Actor.score_move(self, move)
+    def actor_type(self):
+        return None

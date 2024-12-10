@@ -25,7 +25,7 @@ class SimState:
         self.generation_actors = []
         self.killed_actors = []
         self.setting = False
-        self.speed = 100
+        self.speed = 1000
         self.max_preds = 20
         self.max_preys = 100  
         self.preds = 20
@@ -148,12 +148,12 @@ class SimState:
         # Ensure the directory exists
         os.makedirs(directory, exist_ok=True)
 
-        try:
-            with open(filename, 'w') as file:
-                json.dump([save], file, indent=4)
-            print(f"Saved simulation state to {filename}")
-        except FileNotFoundError:
-            print(f"File not found: {filename}")
+        #try:
+            #with open(filename, 'w') as file:
+                #json.dump([save], file, indent=4)
+            #print(f"Saved simulation state to {filename}")
+        #except FileNotFoundError:
+            #print(f"File not found: {filename}")
 
         preds = 0
         preys = 0
