@@ -382,8 +382,8 @@ class SimState:
 
         while self.running:
             #sc.fill((30, 30, 30))
-            sc.fill((0, 0, 0)) #cool mode
-            #sc.fill((255, 255, 255)) #try it I DARE YOU
+            #sc.fill((0, 0, 0)) #cool mode
+            sc.fill((255, 255, 255)) #try it I DARE YOU
 
 
 
